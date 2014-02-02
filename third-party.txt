@@ -1,0 +1,15 @@
+This document contains the list of Third Party Software included with
+spy2nd, along with the license information.
+
+Third Party Software may impose additional restrictions and it is the
+user's responsibility to ensure that they have met the licensing
+requirements of spy2nd and the relevant license of the Third Party
+Software they are using.
+
+WTL - http://wtl.sourceforge.net/
+License:
+	Common Public License 1.0 (CPL)
+	http://opensource.org/osi3.0/licenses/cpl1.0.php
+or
+	Microsoft Permissive License (Ms-PL).
+	http://www.microsoft.com/resources/sharedsource/licensingbasics/permissivelicense.mspx

@@ -18,6 +18,9 @@
 #include <atlctrlx.h>
 #include <atlwinx.h>
 
+#define _WTL_NO_CSTRING
+#include <atlmisc.h>
+
 extern CAppModule _Module;
 
 #include <atlwin.h>

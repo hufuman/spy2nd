@@ -6,29 +6,23 @@
 
 enum SpyViewType
 {
-    ViewNone,
-    ViewWindows,
-    ViewThreads,
-    ViewProcesses,
-    ViewLogMsg,
+    ViewNone        = -1,
+    ViewWindows     = 0,
+    ViewProcesses   = 1,
+    ViewLogMsg      = 2,
+    ViewLogMax      = 3,
 };
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
-		public CMessageFilter, public CIdleHandler
+		public CMessageFilter, public CIdleHandler, public IViewHolder
 {
 public:
-	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
-
-    CWindowsView    m_WindowsView;
-	CLogMsgView     m_LogMsgView;
-    CThreadsView    m_ThreadsView;
-    CProcessesView  m_ProcessView;
-
-    SpyViewType     m_SpyViewType;
+	DECLARE_FRAME_WND_CLASS(_T("Spy2nd"), IDR_MAINFRAME)
 
     CMainFrame()
     {
         m_SpyViewType = ViewNone;
+        GetWndClassInfo().m_uCommonResourceID = IDR_MAINFRAME;
     }
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
@@ -50,28 +44,35 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 
         UPDATE_ELEMENT(ID_FILE_WINDOWS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
-        UPDATE_ELEMENT(ID_FILE_THREADS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_FILE_PROCESSES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_FILE_LOG_MSG, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+
+        UPDATE_ELEMENT(ID_VIEW_SHOWVISIBLE, UPDUI_MENUPOPUP | UPDUI_CHECKED)
+        UPDATE_ELEMENT(ID_VIEW_SHOWALL, UPDUI_MENUPOPUP | UPDUI_CHECKED)
+
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
+
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 
         COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 
         COMMAND_ID_HANDLER(ID_FILE_WINDOWS, OnFileWindows)
-        COMMAND_ID_HANDLER(ID_FILE_THREADS, OnFileThreads)
         COMMAND_ID_HANDLER(ID_FILE_PROCESSES, OnFileProcesses)
         COMMAND_ID_HANDLER(ID_FILE_LOG_MSG, OnFileLogMsg)
 
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
+        COMMAND_ID_HANDLER(ID_VIEW_SHOWVISIBLE, OnViewShowVisible)
+        COMMAND_ID_HANDLER(ID_VIEW_SHOWALL, OnViewShowAll)
+        COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnViewRefresh)
 
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+        REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -79,11 +80,45 @@ public:
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
+public:
+//////////////////////////////////////////////////////////////////////////
+// IViewHolder
+    virtual HWND GetHwnd()
+    {
+        return m_hWnd;
+    }
+
+    virtual void Refresh()
+    {
+        DWORD dwOptions = GetViewOptions();
+        CWindow wnd(m_hWndClient);
+        wnd.SetRedraw(FALSE);
+        m_pView[m_SpyViewType]->Refresh(dwOptions);
+        wnd.SetRedraw(TRUE);
+        wnd.Invalidate();
+        wnd.UpdateWindow();
+    }
+    virtual DWORD GetViewOptions()
+    {
+        DWORD dwState = UIGetState(ID_VIEW_SHOWVISIBLE);
+        bool bOnlyVisible = ((dwState & UPDUI_CHECKED) == UPDUI_CHECKED);
+        DWORD dwOptions = bOnlyVisible ? ViewOptionOnlyVisible : ViewOptionAll;
+
+        return dwOptions;
+    }
+
+private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		CreateSimpleToolBar();
 
 		CreateSimpleStatusBar();
+
+        UISetCheck(ID_VIEW_SHOWALL, true);
+
+        m_pView[ViewWindows] = dynamic_cast<IView*>(&m_WindowsView);
+        m_pView[ViewProcesses] = dynamic_cast<IView*>(&m_ProcessView);
+        m_pView[ViewLogMsg] = dynamic_cast<IView*>(&m_LogMsgView);
 
         ShowView(ViewWindows);
 
@@ -106,69 +141,21 @@ public:
         if(type == m_SpyViewType)
             return;
 
-        if(type == ViewWindows)
+        if(m_SpyViewType != ViewNone)
+            m_pView[m_SpyViewType]->Show(FALSE);
+
+        if(!m_pView[type]->IsCreated())
         {
-            if(m_WindowsView.m_hWnd == NULL)
-            {
-                m_hWndClient = m_WindowsView.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-                m_WindowsView.SetFont(AtlGetDefaultGuiFont());
-            }
-            else
-            {
-                m_hWndClient = m_WindowsView.m_hWnd;
-            }
+            m_pView[type]->Create(this);
+            m_pView[type]->Refresh(GetViewOptions());
         }
-        else if(type == ViewLogMsg)
-        {
-            if(m_LogMsgView.m_hWnd == NULL)
-            {
-                m_hWndClient = m_LogMsgView.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-                m_LogMsgView.SetFont(AtlGetDefaultGuiFont());
-            }
-            else
-            {
-                m_hWndClient = m_LogMsgView.m_hWnd;
-            }
-        }
-        else if(type == ViewThreads)
-        {
-            if(m_ThreadsView.m_hWnd == NULL)
-            {
-                m_hWndClient = m_ThreadsView.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-                m_ThreadsView.SetFont(AtlGetDefaultGuiFont());
-            }
-            else
-            {
-                m_hWndClient = m_ThreadsView.m_hWnd;
-            }
-        }
-        else if(type == ViewProcesses)
-        {
-            if(m_ProcessView.m_hWnd == NULL)
-            {
-                m_hWndClient = m_ProcessView.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-                m_ProcessView.SetFont(AtlGetDefaultGuiFont());
-            }
-            else
-            {
-                m_hWndClient = m_ProcessView.m_hWnd;
-            }
-        }
-        if(m_WindowsView.m_hWnd != NULL)
-            m_WindowsView.ShowWindow(type == ViewWindows ? SW_SHOW : SW_HIDE);
-        if(m_LogMsgView.m_hWnd != NULL)
-            m_LogMsgView.ShowWindow(type == ViewLogMsg ? SW_SHOW : SW_HIDE);
-        if(m_ThreadsView.m_hWnd != NULL)
-            m_ThreadsView.ShowWindow(type == ViewThreads ? SW_SHOW : SW_HIDE);
-        if(m_ProcessView.m_hWnd != NULL)
-            m_ProcessView.ShowWindow(type == ViewProcesses ? SW_SHOW : SW_HIDE);
+        m_pView[type]->Show(TRUE);
+        m_SpyViewType = type;
+        m_hWndClient = m_pView[type]->GetHwnd();
 
         UISetCheck(ID_FILE_WINDOWS, type == ViewWindows);
         UISetCheck(ID_FILE_LOG_MSG, type == ViewLogMsg);
-        UISetCheck(ID_FILE_THREADS, type == ViewThreads);
         UISetCheck(ID_FILE_PROCESSES, type == ViewProcesses);
-
-        m_SpyViewType = type;
 
         UpdateLayout();
     }
@@ -195,12 +182,6 @@ public:
     LRESULT OnFileWindows(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         ShowView(ViewWindows);
-        return 0;
-    }
-
-    LRESULT OnFileThreads(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-    {
-        ShowView(ViewThreads);
         return 0;
     }
 
@@ -234,10 +215,43 @@ public:
 		return 0;
 	}
 
+    LRESULT OnViewShowVisible(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        UISetCheck(ID_VIEW_SHOWVISIBLE, true);
+        UISetCheck(ID_VIEW_SHOWALL, false);
+
+        Refresh();
+        return 0;
+    }
+
+    LRESULT OnViewShowAll(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        UISetCheck(ID_VIEW_SHOWVISIBLE, false);
+        UISetCheck(ID_VIEW_SHOWALL, true);
+
+        Refresh();
+        return 0;
+    }
+
+    LRESULT OnViewRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        Refresh();
+        return 0;
+    }
+
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		CAboutDlg dlg;
 		dlg.DoModal();
 		return 0;
 	}
+
+private:
+    CWindowsView    m_WindowsView;
+    CLogMsgView     m_LogMsgView;
+    CProcessesView  m_ProcessView;
+
+    IView*          m_pView[ViewLogMax];
+
+    SpyViewType     m_SpyViewType;
 };

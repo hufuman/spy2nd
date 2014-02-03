@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HighlightDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\LogMsgView.h"
 				>
 			</File>
@@ -248,7 +252,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ThreadsView.h"
+				RelativePath=".\ViewOptions.h"
 				>
 			</File>
 			<File
@@ -259,6 +263,26 @@
 				RelativePath=".\WndLayout.h"
 				>
 			</File>
+			<Filter
+				Name="PropertyDlg"
+				>
+				<File
+					RelativePath=".\PropertyGeneralDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PropertyMiscDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PropertyStylesDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PropertyWindowsDlg.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -274,6 +298,10 @@
 			</File>
 			<File
 				RelativePath=".\res\toolbar.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\windows_imagelist.bmp"
 				>
 			</File>
 		</Filter>

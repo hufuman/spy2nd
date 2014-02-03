@@ -54,17 +54,16 @@ END
 IDR_MAINFRAME TOOLBAR  16, 15
 BEGIN
     BUTTON      ID_FILE_WINDOWS
-    BUTTON      ID_FILE_THREADS
     BUTTON      ID_FILE_PROCESSES
     BUTTON      ID_FILE_LOG_MSG
     SEPARATOR
-    BUTTON      ID_EDIT_REFRESH
+    BUTTON      ID_VIEW_REFRESH
     BUTTON      ID_EDIT_CLEAR
     BUTTON      ID_EDIT_COPY
     SEPARATOR
     BUTTON      ID_SEARCH_FINDWINDOW
     SEPARATOR
-    BUTTON      ID_VIEW_PROPERTIES
+    BUTTON      ID_VIEW_PROPERTY
     SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
@@ -76,6 +75,7 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDB_BITMAP_WINDOWS      BITMAP                  "res\\windows_imagelist.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -87,7 +87,6 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Windows\tCtrl+W",             ID_FILE_WINDOWS
-        MENUITEM "Threads\tCtrl+T",             ID_FILE_THREADS
         MENUITEM "Processes\tCtrl+P",           ID_FILE_PROCESSES
         MENUITEM SEPARATOR
         MENUITEM "Log Messages\tCtrl+M",        ID_FILE_LOG_MSG
@@ -96,7 +95,6 @@ BEGIN
     END
     POPUP "&Edit"
     BEGIN
-        MENUITEM "&Refresh\tF5",                ID_EDIT_REFRESH
         MENUITEM "Clea&r\tCtrl+X",              ID_EDIT_CLEAR
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
     END
@@ -106,16 +104,56 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
+        MENUITEM "&Refresh\tF5",                ID_VIEW_REFRESH
         MENUITEM "&Always On Top",              ID_VIEW_ALWAYSONTOP
         MENUITEM SEPARATOR
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        MENUITEM "Properties...\tAlt+Enter",    ID_VIEW_PROPERTIES
+        MENUITEM "Property...\tAlt+Enter",      ID_VIEW_PROPERTY
+        MENUITEM "Show &Visible",               ID_VIEW_SHOWVISIBLE, CHECKED
+        MENUITEM "Show &All",                   ID_VIEW_SHOWALL
     END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About Spy2nd...",            ID_APP_ABOUT
+    END
+END
+
+IDR_MENU_WINDOW MENU 
+BEGIN
+    POPUP "WindowMenu"
+    BEGIN
+        MENUITEM "&Message",                    ID_WINDOWMENU_MESSAGE
+        MENUITEM "&Highlight",                  ID_WINDOWMENU_HIGHLIGHT
+        MENUITEM SEPARATOR
+        MENUITEM "&Refresh",                    ID_WINDOWMENU_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Property",                   ID_WINDOWMENU_PROPERTY
+    END
+END
+
+IDR_MENU_PROCESS MENU 
+BEGIN
+    POPUP "ProcessMenu"
+    BEGIN
+        MENUITEM "&Message",                    ID_FILE_LOG_MSG
+        MENUITEM SEPARATOR
+        MENUITEM "&Refresh",                    ID_VIEW_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Property",                   ID_VIEW_PROPERTY
+    END
+END
+
+IDR_MENU_THREAD MENU 
+BEGIN
+    POPUP "ProcessMenu"
+    BEGIN
+        MENUITEM "&Message",                    ID_FILE_LOG_MSG
+        MENUITEM SEPARATOR
+        MENUITEM "&Refresh",                    ID_VIEW_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Property",                   ID_VIEW_PROPERTY
     END
 END
 
@@ -136,13 +174,98 @@ IDR_MAINFRAME           ICON                    "res\\spy2nd.ico"
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About sxshacker"
+CAPTION "About Spy2nd"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "sxshacker, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Spy2nd, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Author: hufuman@github",IDC_LABEL_AUTHOR,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+IDD_HIGHLIGHT DIALOGEX 0, 0, 143, 76
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+END
+
+IDD_WND_PROPERTY DIALOGEX 0, 0, 316, 183
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Property Inspector"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Refresh",IDOK,205,162,50,14
+    PUSHBUTTON      "Close",IDCANCEL,259,162,50,14
+    CONTROL         "",IDC_TAB_PROPERTY,"SysTabControl32",0x0,7,7,302,153
+END
+
+IDD_PROPERTY_GENERAL DIALOGEX 0, 0, 240, 155
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Caption:",IDC_STATIC,7,10,28,8
+    LTEXT           "Handle:",IDC_STATIC,7,30,26,8
+    LTEXT           "Procedure:",IDC_STATIC,7,49,36,8
+    LTEXT           "Rectangle:",IDC_STATIC,7,68,36,8
+    LTEXT           "Restored Rect:",IDC_STATIC,7,87,50,8
+    LTEXT           "Client Rect:",IDC_STATIC,7,106,38,8
+    LTEXT           "Instance Handle:",IDC_STATIC,7,125,56,8
+    EDITTEXT        IDC_EDIT_CAPTION,71,7,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_HANDLE,71,26,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PROC,71,46,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_RCWND,71,65,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_RCRESTORE,71,84,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_RCCLIENT,71,103,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_INST,71,122,162,14,ES_AUTOHSCROLL
+END
+
+IDD_PROPERTY_STYLES DIALOGEX 0, 0, 240, 155
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Styles:",IDC_STATIC,7,10,23,8
+    EDITTEXT        IDC_EDIT_STYLES,67,7,166,14,ES_AUTOHSCROLL
+    LISTBOX         IDC_LIST_STYLES,7,22,226,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Extended Styles:",IDC_STATIC,7,82,56,8
+    EDITTEXT        IDC_EDIT_EXSTYLES,67,79,166,14,ES_AUTOHSCROLL
+    LISTBOX         IDC_LIST_EXSTYLES,7,93,226,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROPERTY_WINDOWS DIALOGEX 0, 0, 240, 155
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Class Name:",IDC_STATIC,7,10,40,8
+    EDITTEXT        IDC_EDIT_CLASS,51,7,180,14,ES_AUTOHSCROLL
+    GROUPBOX        "Parent",IDC_STATIC,7,24,226,61
+    LTEXT           "Handle:",IDC_STATIC,9,37,26,8
+    LTEXT           "Caption:",IDC_STATIC,9,54,28,8
+    LTEXT           "Process:",IDC_STATIC,9,71,28,8
+    EDITTEXT        IDC_LABEL_PARENT_CAPTION,51,51,180,14,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_LABEL_PARENT_HANDLE,51,34,180,14,WS_BORDER
+    LTEXT           "Static",IDC_LABEL_PARENT_PROCESS,51,68,180,14,WS_BORDER
+    GROUPBOX        "Owner",IDC_STATIC,7,87,226,61
+    LTEXT           "Handle:",IDC_STATIC,9,100,26,8
+    LTEXT           "Caption:",IDC_STATIC,9,117,28,8
+    LTEXT           "Process:",IDC_STATIC,9,133,28,8
+    EDITTEXT        IDC_LABEL_OWNER_CAPTION,51,114,180,14,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_LABEL_OWNER_HANDLE,51,96,180,14,WS_BORDER
+    LTEXT           "Static",IDC_LABEL_OWNER_PROCESS,51,130,180,14,WS_BORDER
+END
+
+IDD_PROPERTY_MISC DIALOGEX 0, 0, 240, 155
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Process ID:",-1,7,10,38,8
+    LTEXT           "Thread ID:",-1,7,30,36,8
+    LTEXT           "Static",-1,71,7,162,14
+    LTEXT           "Static",-1,71,26,162,14
 END
 
 
@@ -157,9 +280,47 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 180
         TOPMARGIN, 7
-        BOTTOMMARGIN, 95
+    END
+
+    IDD_WND_PROPERTY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 176
+    END
+
+    IDD_PROPERTY_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_PROPERTY_STYLES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_PROPERTY_WINDOWS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_PROPERTY_MISC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -205,6 +366,17 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    VK_F5,          ID_VIEW_REFRESH,        VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -229,6 +401,7 @@ STRINGTABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+    ID_VIEW_REFRESH         "Refresh current view\nRefresh"
 END
 
 STRINGTABLE 
@@ -267,12 +440,20 @@ STRINGTABLE
 BEGIN
     ID_SEARCH_FINDWINDOW    "Search for specified window\nSearch"
     ID_VIEW_ALWAYSONTOP     "Make Spy2nd top most\\TopMost"
-    ID_VIEW_PROPERTIES      "Show properties\nProperties"
-    ID_EDIT_REFRESH         "Refresh current view\nRefresh"
+    ID_VIEW_PROPERTY        "Show property\nProperty"
     ID_FILE_WINDOWS         "Show all windows\nWindows"
-    ID_FILE_THREADS         "Show all threads\nThreads"
     ID_FILE_PROCESSES       "Show all processes\nProcesses"
     ID_FILE_LOG_MSG         "Log messages\nLog"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_SHOWVISIBLE     "Show only visible windows\nVisible Windows"
+    ID_VIEW_SHOWALL         "Show all windows\nAll Windows"
+    ID_WINDOWMENU_HIGHLIGHT "Highlight the window\nHighlight"
+    ID_WINDOWMENU_REFRESH   "Refresh current view\nRefresh"
+    ID_WINDOWMENU_MESSAGE   "Log messages\nLog"
+    ID_WINDOWMENU_PROPERTY  "Show property\nProperty"
 END
 
 #endif    // English (U.S.) resources

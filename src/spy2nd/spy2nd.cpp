@@ -11,7 +11,6 @@
 
 #include "WindowsView.h"
 #include "LogMsgView.h"
-#include "ThreadsView.h"
 #include "ProcessesView.h"
 #include "aboutdlg.h"
 #include "MainFrm.h"
@@ -50,7 +49,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
 
-	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
+	AtlInitCommonControls(ICC_WIN95_CLASSES);	// add flags to support other controls
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));

@@ -7,13 +7,7 @@
 class CLogMsgView : public CWindowImpl<CLogMsgView, CListViewCtrl>
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, CListViewCtrl::GetWndClassName())
-
-	BOOL PreTranslateMessage(MSG* pMsg)
-	{
-		pMsg;
-		return FALSE;
-	}
+	DECLARE_WND_SUPERCLASS(_T("SpyLogMsgView"), CListViewCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP(CLogMsgView)
 	END_MSG_MAP()

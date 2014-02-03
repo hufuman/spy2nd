@@ -7,13 +7,7 @@
 class CThreadsView : public CWindowImpl<CThreadsView, CTreeViewCtrl>
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, CTreeViewCtrl::GetWndClassName())
-
-	BOOL PreTranslateMessage(MSG* pMsg)
-	{
-		pMsg;
-		return FALSE;
-	}
+	DECLARE_WND_SUPERCLASS(_T("SpyThreadsView"), CTreeViewCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP(CThreadsView)
 	END_MSG_MAP()

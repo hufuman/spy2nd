@@ -9,7 +9,10 @@
 
 #include "resource.h"
 
-#include "spy2ndView.h"
+#include "WindowsView.h"
+#include "LogMsgView.h"
+#include "ThreadsView.h"
+#include "ProcessesView.h"
 #include "aboutdlg.h"
 #include "MainFrm.h"
 

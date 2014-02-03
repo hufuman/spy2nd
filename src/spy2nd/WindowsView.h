@@ -1,15 +1,15 @@
-// ProcessesView.h : interface of the CProcessesView class
+// WindowsView.h : interface of the CWindowsView class
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-class CProcessesView : public CWindowImpl<CProcessesView, CTreeViewCtrl>
+class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>
 {
 public:
-	DECLARE_WND_SUPERCLASS(_T("SpyProcessesView"), CTreeViewCtrl::GetWndClassName())
+	DECLARE_WND_SUPERCLASS(_T("SpyWindowsView"), CTreeViewCtrl::GetWndClassName())
 
-	BEGIN_MSG_MAP(CProcessesView)
+	BEGIN_MSG_MAP(CWindowsView)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):

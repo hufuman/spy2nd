@@ -4,35 +4,109 @@
 
 
 
-class CAboutDlg : public CDialogImpl<CAboutDlg>
+class CPropertyWindowsDlg : public CDialogImpl<CPropertyWindowsDlg>
 {
 public:
-	enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_PROPERTY_WINDOWS };
 
-	BEGIN_MSG_MAP(CAboutDlg)
-		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-        REFLECT_NOTIFICATIONS()
-	END_MSG_MAP()
+    BEGIN_MSG_MAP(CPropertyWindowsDlg)
+        MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+        MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORDLG,     OnCtlColor)
+    END_MSG_MAP()
+
+    CPropertyWindowsDlg()
+    {
+        m_hTargetWnd = NULL;
+        m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
+    }
+
+    LRESULT OnCtlColor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        return reinterpret_cast<LRESULT>(m_hBrush);
+    }
 
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-        m_LinkAuthor.SubclassWindow(GetDlgItem(IDC_LABEL_AUTHOR).m_hWnd);
-        m_LinkAuthor.SetHyperLink(_T("https://github.com/hufuman"));
+    LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        m_LinkParentHandle.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_HANDLE));
+        m_LinkParentProcess.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_PROCESS));
 
-		CenterWindow(GetParent());
-		return TRUE;
-	}
+        m_LinkOwnerHandle.SubclassWindow(GetDlgItem(IDC_LABEL_OWNER_HANDLE));
+        m_LinkOwnerProcess.SubclassWindow(GetDlgItem(IDC_LABEL_OWNER_PROCESS));
 
-	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		EndDialog(wID);
-		return 0;
-	}
+        return TRUE;
+    }
+
+    void RefreshProperty(HWND hTargetWnd)
+    {
+        m_hTargetWnd = hTargetWnd;
+
+        CString strTemp;
+        HWND hWndParent = ::GetParent(m_hTargetWnd);
+        HWND hWndOwner = ::GetWindow(m_hTargetWnd, GW_OWNER);
+
+        if(hWndParent == NULL)
+        {
+            m_LinkParentHandle.SetLabel(_T("NULL"));
+            m_LinkParentProcess.SetLabel(_T(""));
+            SetDlgItemText(IDC_LABEL_PARENT_CAPTION, _T(""));
+        }
+        else
+        {
+            CWindow wndParent;
+            wndParent.Attach(hWndParent);
+
+            strTemp.Format(_T("0x%08x"), hWndParent);
+            m_LinkParentHandle.SetLabel(strTemp);
+
+            DWORD dwProcId = 0;
+            GetWindowThreadProcessId(hWndParent, &dwProcId);
+            strTemp.Format(_T("%u"), dwProcId);
+            m_LinkParentProcess.SetLabel(strTemp);
+
+            wndParent.GetWindowText(strTemp);
+            SetDlgItemText(IDC_LABEL_PARENT_CAPTION, strTemp);
+        }
+
+        if(hWndOwner == NULL)
+        {
+            m_LinkOwnerHandle.SetLabel(_T("NULL"));
+            m_LinkOwnerProcess.SetLabel(_T(""));
+            SetDlgItemText(IDC_LABEL_OWNER_CAPTION, _T(""));
+        }
+        else
+        {
+            CWindow wndOwner;
+            wndOwner.Attach(hWndOwner);
+
+            strTemp.Format(_T("0x%08x"), hWndOwner);
+            m_LinkOwnerHandle.SetLabel(strTemp);
+
+            DWORD dwProcId = 0;
+            GetWindowThreadProcessId(hWndOwner, &dwProcId);
+            strTemp.Format(_T("%u"), dwProcId);
+            m_LinkOwnerProcess.SetLabel(strTemp);
+
+            wndOwner.GetWindowText(strTemp);
+            SetDlgItemText(IDC_LABEL_OWNER_CAPTION, strTemp);
+        }
+
+        m_LinkParentHandle.Invalidate();
+        m_LinkParentProcess.Invalidate();
+        m_LinkOwnerHandle.Invalidate();
+        m_LinkOwnerProcess.Invalidate();
+    }
 
 private:
-    CHyperLink m_LinkAuthor;
+    HWND    m_hTargetWnd;
+    HBRUSH  m_hBrush;
+
+    CHyperLink  m_LinkParentHandle;
+    CHyperLink  m_LinkParentProcess;
+
+    CHyperLink  m_LinkOwnerHandle;
+    CHyperLink  m_LinkOwnerProcess;
 };
 

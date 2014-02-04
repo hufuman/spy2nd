@@ -169,7 +169,7 @@ void CWndLayout::AdjustControl(HDWP hDWP, RECT rcParent, const stWndInfo& info)
         NULL, 
         rcControl.left, rcControl.top,
         rcControl.right - rcControl.left, rcControl.bottom - rcControl.top,
-        SWP_NOZORDER
+        SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOOWNERZORDER
         );
 }
 

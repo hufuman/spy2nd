@@ -7,6 +7,7 @@
 
 #include "ViewOptions.h"
 #include "HighlightDlg.h"
+#include "PropertyDlg.h"
 
 class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>, public IView
 {
@@ -23,6 +24,7 @@ public:
         COMMAND_ID_HANDLER(ID_WINDOWMENU_PROPERTY, OnWindowMenuProperty)
 
         REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnRClicked)
+        REFLECTED_NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnItemSelChanged)
 
         DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
@@ -72,6 +74,17 @@ private:
 
     LRESULT OnWindowMenuProperty(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
+        if(m_PropertyDlg.m_hWnd == NULL)
+        {
+            m_PropertyDlg.Create(m_hWnd);
+        }
+
+        HTREEITEM hItem = GetSelectedItem();
+        if(hItem == NULL)
+            return 0;
+
+        HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
+        m_PropertyDlg.ShowProperty(hWnd);
         return 0;
     }
 
@@ -99,6 +112,17 @@ private:
 
         this->Select(hItem, TVGN_CARET);
         ShowContextMenu();
+        return 0;
+    }
+
+    LRESULT OnItemSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+    {
+        NMTREEVIEW* pView = reinterpret_cast<NMTREEVIEW*>(pnmh);
+        if(pView->itemNew.hItem != NULL && m_PropertyDlg.m_hWnd != NULL && m_PropertyDlg.IsWindowVisible())
+        {
+            HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(pView->itemNew.hItem));
+            m_PropertyDlg.ShowProperty(hWnd);
+        }
         return 0;
     }
 
@@ -195,4 +219,5 @@ public:
 private:
     CImageList      m_ImageList;
     IViewHolder*    m_pHolder;
+    CPropertyDlg    m_PropertyDlg;
 };

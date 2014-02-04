@@ -4,35 +4,74 @@
 
 
 
-class CAboutDlg : public CDialogImpl<CAboutDlg>
+class CPropertyMiscDlg : public CDialogImpl<CPropertyMiscDlg>
 {
 public:
-	enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_PROPERTY_MISC };
 
-	BEGIN_MSG_MAP(CAboutDlg)
-		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-        REFLECT_NOTIFICATIONS()
-	END_MSG_MAP()
+    BEGIN_MSG_MAP(CPropertyMiscDlg)
+        MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+        MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORDLG,     OnCtlColor)
 
+        COMMAND_ID_HANDLER(IDC_LINK_PROCID, OnProcIdClicked)
+        COMMAND_ID_HANDLER(IDC_LINK_THREADID, OnThreadIdClicked)
+    END_MSG_MAP()
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-        m_LinkAuthor.SubclassWindow(GetDlgItem(IDC_LABEL_AUTHOR).m_hWnd);
-        m_LinkAuthor.SetHyperLink(_T("https://github.com/hufuman"));
+    CPropertyMiscDlg()
+    {
+        m_hTargetWnd = NULL;
+        m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
+    }
 
-		CenterWindow(GetParent());
-		return TRUE;
-	}
+    LRESULT OnCtlColor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        return reinterpret_cast<LRESULT>(m_hBrush);
+    }
 
-	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		EndDialog(wID);
-		return 0;
-	}
+    LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        m_LinkProcId.SubclassWindow(GetDlgItem(IDC_LINK_PROCID));
+        m_LinkThreadId.SubclassWindow(GetDlgItem(IDC_LINK_THREADID));
+        return TRUE;
+    }
+
+    LRESULT OnProcIdClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        // not impl
+        return 0;
+    }
+
+    LRESULT OnThreadIdClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        // not impl
+        return 0;
+    }
+
+    void RefreshProperty(HWND hTargetWnd)
+    {
+        m_hTargetWnd = hTargetWnd;
+
+        DWORD dwProcId = 0;
+        DWORD dwThreadId = ::GetWindowThreadProcessId(m_hTargetWnd, &dwProcId);
+
+        CString strTemp;
+
+        strTemp.Format(_T("%08u"), dwProcId);
+        m_LinkProcId.SetLabel(strTemp);
+        m_LinkProcId.Invalidate();
+
+        strTemp.Format(_T("%08u"), dwThreadId);
+        m_LinkThreadId.SetLabel(strTemp);
+        m_LinkThreadId.Invalidate();
+    }
 
 private:
-    CHyperLink m_LinkAuthor;
+    HWND    m_hTargetWnd;
+    HBRUSH  m_hBrush;
+
+    CHyperLink  m_LinkProcId;
+    CHyperLink  m_LinkThreadId;
 };
 

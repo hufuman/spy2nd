@@ -267,6 +267,14 @@
 				Name="PropertyDlg"
 				>
 				<File
+					RelativePath=".\PropertyClassDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PropertyDlg.h"
+					>
+				</File>
+				<File
 					RelativePath=".\PropertyGeneralDlg.h"
 					>
 				</File>
@@ -302,6 +310,18 @@
 			</File>
 			<File
 				RelativePath=".\res\windows_imagelist.bmp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Util"
+			>
+			<File
+				RelativePath=".\WndStyles.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WndStyles.h"
 				>
 			</File>
 		</Filter>

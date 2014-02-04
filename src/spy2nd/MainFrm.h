@@ -98,6 +98,7 @@ public:
         wnd.Invalidate();
         wnd.UpdateWindow();
     }
+
     virtual DWORD GetViewOptions()
     {
         DWORD dwState = UIGetState(ID_VIEW_SHOWVISIBLE);

@@ -15,19 +15,20 @@
 #define IDD_PROPERTY_STYLES             210
 #define IDD_PROPERTY_WINDOWS            211
 #define IDD_PROPERTY_MISC               212
+#define IDD_PROPERTY_CLASS              213
 #define IDC_LABEL_AUTHOR                1001
 #define IDC_TAB_PROPERTY                1003
 #define IDC_EDIT_CAPTION                1004
 #define IDC_EDIT_HANDLE                 1005
 #define IDC_EDIT_EXSTYLES               1005
-#define IDC_EDIT_PROC                   1006
+#define IDC_EDIT_PROCEDURE              1006
 #define IDC_EDIT_RCWND                  1007
-#define IDC_LIST_STYLES                 1007
+#define IDC_LIST_WINDOW_STYLES          1007
 #define IDC_EDIT_RCRESTORE              1008
 #define IDC_LIST_EXSTYLES               1008
 #define IDC_LABEL_PARENT_CAPTION        1008
 #define IDC_EDIT_RCCLIENT               1009
-#define IDC_EDIT_STYLES                 1009
+#define IDC_EDIT_WINDOW_STYLES          1009
 #define IDC_EDIT_INST                   1010
 #define IDC_EDIT_CLASS                  1010
 #define IDC_LABEL_OWNER_CAPTION         1011
@@ -35,6 +36,14 @@
 #define IDC_LABEL_PARENT_PROCESS        1013
 #define IDC_LABEL_OWNER_HANDLE          1014
 #define IDC_LABEL_OWNER_PROCESS         1015
+#define IDC_LINK_THREADID               1017
+#define IDC_LINK_PROCID                 1018
+#define IDC_LIST_CLASS_STYLES           1019
+#define IDC_EDIT_CLASS_STYLES           1020
+#define IDC_CLASS_ICON                  1021
+#define IDC_CLASS_CURSOR                1022
+#define IDC_EDIT_CLASS_NAME             1024
+#define IDC_CLASS_BACKGROUND            1025
 #define ID_SEARCH_FINDWINDOW            32775
 #define ID_VIEW_ALWAYSONTOP             32776
 #define ID_VIEW_PROPERTY                32778
@@ -47,8 +56,6 @@
 #define ID_WINDOWMENU_REFRESH           32796
 #define ID_WINDOWMENU_MESSAGE           32797
 #define ID_WINDOWMENU_PROPERTY          32798
-#define ID_WINDOWMENU_A                 32799
-#define ID_WINDOWMENU_A32800            32800
 
 // Next default values for new objects
 // 
@@ -56,7 +63,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        210
 #define _APS_NEXT_COMMAND_VALUE         32803
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

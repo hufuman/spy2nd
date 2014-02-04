@@ -4,35 +4,97 @@
 
 
 
-class CAboutDlg : public CDialogImpl<CAboutDlg>
+class CPropertyGeneralDlg : public CDialogImpl<CPropertyGeneralDlg>
 {
 public:
-	enum { IDD = IDD_ABOUTBOX };
+	enum { IDD = IDD_PROPERTY_GENERAL };
 
-	BEGIN_MSG_MAP(CAboutDlg)
+	BEGIN_MSG_MAP(CPropertyGeneralDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-        REFLECT_NOTIFICATIONS()
+        MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORDLG,     OnCtlColor)
 	END_MSG_MAP()
 
+    CPropertyGeneralDlg()
+    {
+        m_hTargetWnd = NULL;
+        m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
+    }
+
+    LRESULT OnCtlColor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        return reinterpret_cast<LRESULT>(m_hBrush);
+    }
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-        m_LinkAuthor.SubclassWindow(GetDlgItem(IDC_LABEL_AUTHOR).m_hWnd);
-        m_LinkAuthor.SetHyperLink(_T("https://github.com/hufuman"));
-
-		CenterWindow(GetParent());
 		return TRUE;
 	}
 
-	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		EndDialog(wID);
-		return 0;
-	}
+    void RefreshProperty(HWND hTargetWnd)
+    {
+        m_hTargetWnd = hTargetWnd;
+
+        CWindow wnd;
+        wnd.Attach(m_hTargetWnd);
+
+        CString strTemp;
+
+        // Caption
+        wnd.GetWindowText(strTemp);
+        SetDlgItemText(IDC_EDIT_CAPTION, strTemp);
+
+        // Handle
+        strTemp.Format(_T("0x%08x"), m_hTargetWnd);
+        SetDlgItemText(IDC_EDIT_HANDLE, strTemp);
+
+        // Procedure
+        LONG_PTR nWndProc = wnd.GetWindowLongPtr(GWLP_WNDPROC);
+        BOOL bInvalid = (::GetLastError() != ERROR_SUCCESS);
+        BOOL bIsUnicode = wnd.IsWindowUnicode();
+        if(bInvalid)
+            strTemp.Format(_T("%s (%s)"), _T("Invalid"), bIsUnicode ? _T("Unicode") : _T("NonUnicode"));
+        else
+            strTemp.Format(_T("0x%08x (%s)"), nWndProc, bIsUnicode ? _T("Unicode") : _T("NonUnicode"));
+        SetDlgItemText(IDC_EDIT_PROCEDURE, strTemp);
+
+        // Rectangle
+        CRect rcWnd;
+        wnd.GetWindowRect(&rcWnd);
+        strTemp.Format(_T("(%d, %d) - (%d, %d)  %d * %d"),
+            rcWnd.left, rcWnd.top,
+            rcWnd.right, rcWnd.bottom,
+            rcWnd.Width(), rcWnd.Height());
+        SetDlgItemText(IDC_EDIT_RCWND, strTemp);
+
+        // Restored Rect
+        WINDOWPLACEMENT placement = {sizeof(placement)};
+        wnd.GetWindowPlacement(&placement);
+        CRect rcRestore(placement.rcNormalPosition);
+        strTemp.Format(_T("(%d, %d) - (%d, %d)  %d * %d"),
+            rcRestore.left, rcRestore.top,
+            rcRestore.right, rcRestore.bottom,
+            rcRestore.Width(), rcRestore.Height());
+        SetDlgItemText(IDC_EDIT_RCRESTORE, strTemp);
+
+        // Client Rect
+        CRect rcClient;
+        wnd.GetClientRect(&rcClient);
+        strTemp.Format(_T("(%d, %d) - (%d, %d)  %d * %d"),
+            rcClient.left, rcClient.top,
+            rcClient.right, rcClient.bottom,
+            rcClient.Width(), rcClient.Height());
+        SetDlgItemText(IDC_EDIT_RCCLIENT, strTemp);
+
+        // Instance Handle
+        LONG_PTR nInstance = wnd.GetWindowLongPtr(GWLP_HINSTANCE);
+        strTemp.Format(_T("0x%08x"), nInstance);
+        SetDlgItemText(IDC_EDIT_INST, strTemp);
+    }
 
 private:
-    CHyperLink m_LinkAuthor;
+    HWND    m_hTargetWnd;
+    HBRUSH  m_hBrush;
 };
 

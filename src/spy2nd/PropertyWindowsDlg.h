@@ -1,7 +1,7 @@
 #pragma once
 
 
-
+#include "WndLayout.h"
 
 
 class CPropertyWindowsDlg : public CDialogImpl<CPropertyWindowsDlg>
@@ -13,6 +13,7 @@ public:
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
+        MESSAGE_HANDLER(WM_CTLCOLORBTN,     OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORDLG,     OnCtlColor)
     END_MSG_MAP()
 
@@ -22,7 +23,7 @@ public:
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
-    LRESULT OnCtlColor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    LRESULT OnCtlColor(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
     {
         return reinterpret_cast<LRESULT>(m_hBrush);
     }
@@ -30,11 +31,28 @@ public:
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
+        m_LinkParentHandle.m_tip.m_hWnd = NULL;
+        m_LinkParentProcess.m_tip.m_hWnd = NULL;
+        m_LinkOwnerHandle.m_tip.m_hWnd = NULL;
+        m_LinkOwnerProcess.m_tip.m_hWnd = NULL;
+
         m_LinkParentHandle.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_HANDLE));
         m_LinkParentProcess.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_PROCESS));
 
         m_LinkOwnerHandle.SubclassWindow(GetDlgItem(IDC_LABEL_OWNER_HANDLE));
         m_LinkOwnerProcess.SubclassWindow(GetDlgItem(IDC_LABEL_OWNER_PROCESS));
+
+        m_WndLayout.Init(m_hWnd);
+        m_WndLayout.AddControlById(IDC_LABEL_PARENT_HANDLE, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_LABEL_PARENT_CAPTION, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_LABEL_PARENT_PROCESS, Layout_HFill);
+
+        m_WndLayout.AddControlById(IDC_LABEL_OWNER_HANDLE, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_LABEL_OWNER_CAPTION, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_LABEL_OWNER_PROCESS, Layout_HFill);
+
+        m_WndLayout.AddControlById(IDC_GROUP_PARENT, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_GROUP_OWNER, Layout_HFill);
 
         return TRUE;
     }
@@ -102,6 +120,8 @@ public:
 private:
     HWND    m_hTargetWnd;
     HBRUSH  m_hBrush;
+
+    CWndLayout  m_WndLayout;
 
     CHyperLink  m_LinkParentHandle;
     CHyperLink  m_LinkParentProcess;

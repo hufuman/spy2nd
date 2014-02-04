@@ -132,7 +132,7 @@ void CWndLayout::AdjustControl(HDWP hDWP, RECT rcParent, const stWndInfo& info)
     }
     else if(info.dwLayout & Layout_HCenter)
     {
-        rcControl.left = (rcParent.right - rcParent.left - info.rcMargin.right - info.rcMargin.left - nWidth) / 2;
+        rcControl.left = (rcParent.right - rcParent.left - info.rcMargin.left - nWidth) / 2;
         rcControl.right = rcControl.left + nWidth;
     }
     else if(info.dwLayout & Layout_HFill)
@@ -155,7 +155,7 @@ void CWndLayout::AdjustControl(HDWP hDWP, RECT rcParent, const stWndInfo& info)
     else if(info.dwLayout & Layout_VCenter)
     {
         int nHeight = rcControl.bottom - rcControl.top;
-        rcControl.top = (rcParent.bottom - rcParent.top - info.rcMargin.bottom - info.rcMargin.top - nHeight) / 2;
+        rcControl.top = (rcParent.bottom - rcParent.top - info.rcMargin.top - nHeight) / 2;
         rcControl.bottom = rcControl.top + nHeight;
     }
     else if(info.dwLayout & Layout_VFill)

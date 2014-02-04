@@ -14,6 +14,7 @@ public:
         MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORDLG,     OnCtlColor)
+        MESSAGE_HANDLER(WM_SIZE, OnSize)
     END_MSG_MAP()
 
     CPropertyStylesDlg()
@@ -27,9 +28,77 @@ public:
         return reinterpret_cast<LRESULT>(m_hBrush);
     }
 
+    LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        bHandled = FALSE;
+        if(wParam != SIZE_MAXIMIZED && wParam != SIZE_RESTORED)
+            return 0;
+
+        int nWidth = LOWORD(lParam);
+        int nHeight = HIWORD(lParam);
+
+        const int nVertInterval = 6;
+        const int nHorzInterval = 6;
+        int nListHeight = (nHeight - 5 * nVertInterval - m_rcEdit.Height() * 2) / 2;
+        int nListWidth = nWidth - nHorzInterval * 2;
+
+        int nEditWidth = nWidth - m_rcEdit.left - nHorzInterval;
+
+        HDWP hDWP = BeginDeferWindowPos(4);
+        // Styles Label
+        GetDlgItem(IDC_LABEL_STYLES).DeferWindowPos(hDWP,
+            NULL,
+            nHorzInterval, nVertInterval + 4,
+            m_rcLabel.Width(), m_rcLabel.Height(),
+            SWP_NOZORDER);
+
+        // Styles Edit
+        GetDlgItem(IDC_EDIT_WINDOW_STYLES).DeferWindowPos(hDWP,
+            NULL,
+            m_rcEdit.left, nVertInterval,
+            nEditWidth, m_rcEdit.Height(),
+            SWP_NOZORDER);
+
+        // Styles List
+        GetDlgItem(IDC_LIST_WINDOW_STYLES).DeferWindowPos(hDWP,
+            NULL,
+            nHorzInterval, nVertInterval * 2 + m_rcEdit.Height(),
+            nListWidth, nListHeight,
+            SWP_NOZORDER);
+
+        // ExStyles Label
+        GetDlgItem(IDC_LABEL_EXSTYLES).DeferWindowPos(hDWP,
+            NULL,
+            nHorzInterval, nVertInterval * 3 + m_rcEdit.Height() + nListHeight + 4,
+            m_rcLabel.Width(), m_rcLabel.Height(),
+            SWP_NOZORDER);
+
+        // ExStyles Edit
+        GetDlgItem(IDC_EDIT_EXSTYLES).DeferWindowPos(hDWP,
+            NULL,
+            m_rcEdit.left, nVertInterval * 3 + m_rcEdit.Height() + nListHeight,
+            nEditWidth, m_rcEdit.Height(),
+            SWP_NOZORDER);
+
+        // ExStyles List
+        GetDlgItem(IDC_LIST_EXSTYLES).DeferWindowPos(hDWP,
+            NULL,
+            nHorzInterval, nVertInterval * 4 + m_rcEdit.Height() * 2 + nListHeight,
+            nListWidth, nListHeight,
+            SWP_NOZORDER);
+
+        EndDeferWindowPos(hDWP);
+
+        return 0;
+    }
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
+        GetDlgItem(IDC_EDIT_WINDOW_STYLES).GetWindowRect(&m_rcEdit);
+        ScreenToClient(&m_rcEdit);
+        GetDlgItem(IDC_LABEL_EXSTYLES).GetWindowRect(&m_rcLabel);
+        ScreenToClient(&m_rcLabel);
+
         return TRUE;
     }
 
@@ -76,5 +145,7 @@ public:
 private:
     HWND    m_hTargetWnd;
     HBRUSH  m_hBrush;
+    CRect   m_rcEdit;
+    CRect   m_rcLabel;
 };
 

@@ -2,6 +2,7 @@
 
 
 #include "WndStyles.h"
+#include "WndLayout.h"
 
 
 class CPropertyClassDlg : public CDialogImpl<CPropertyClassDlg>
@@ -67,6 +68,20 @@ public:
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
         m_hBkgLabel = GetDlgItem(IDC_CLASS_BACKGROUND);
+
+        m_WndLayout.Init(m_hWnd);
+        m_WndLayout.AddControlById(IDC_EDIT_CLASS_NAME,     Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_CLASS_STYLES,   Layout_HFill);
+        m_WndLayout.AddControlById(IDC_LIST_CLASS_STYLES,   Layout_HFill | Layout_VFill);
+
+        m_WndLayout.AddControlById(IDC_LABEL_ICON,          Layout_Left | Layout_Bottom);
+        m_WndLayout.AddControlById(IDC_LABEL_CURSOR,        Layout_HCenter | Layout_Bottom);
+        m_WndLayout.AddControlById(IDC_LABEL_BKG,           Layout_Right | Layout_Bottom);
+
+        m_WndLayout.AddControlById(IDC_CLASS_ICON,          Layout_Left | Layout_Bottom);
+        m_WndLayout.AddControlById(IDC_CLASS_CURSOR,        Layout_HCenter | Layout_Bottom);
+        m_WndLayout.AddControlById(IDC_CLASS_BACKGROUND,    Layout_Right | Layout_Bottom);
+
         return TRUE;
     }
 
@@ -145,6 +160,9 @@ public:
 
 private:
     HWND    m_hTargetWnd;
+
+    CWndLayout  m_WndLayout;
+
     HBRUSH  m_hBrush;
     BOOL    m_bCreateBkgBrush;
     HBRUSH  m_hBkgBrush;

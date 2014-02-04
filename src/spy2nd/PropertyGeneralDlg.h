@@ -1,7 +1,7 @@
 #pragma once
 
 
-
+#include "WndLayout.h"
 
 
 class CPropertyGeneralDlg : public CDialogImpl<CPropertyGeneralDlg>
@@ -29,6 +29,14 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+        m_WndLayout.Init(m_hWnd);
+        m_WndLayout.AddControlById(IDC_EDIT_CAPTION, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_HANDLE, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_PROCEDURE, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_RCWND, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_RCRESTORE, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_RCCLIENT, Layout_HFill);
+        m_WndLayout.AddControlById(IDC_EDIT_INST, Layout_HFill);
 		return TRUE;
 	}
 
@@ -94,7 +102,8 @@ public:
     }
 
 private:
-    HWND    m_hTargetWnd;
-    HBRUSH  m_hBrush;
+    HWND        m_hTargetWnd;
+    HBRUSH      m_hBrush;
+    CWndLayout  m_WndLayout;
 };
 

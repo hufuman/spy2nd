@@ -44,6 +44,13 @@
 #define IDC_CLASS_CURSOR                1022
 #define IDC_EDIT_CLASS_NAME             1024
 #define IDC_CLASS_BACKGROUND            1025
+#define IDC_LABEL_STYLES                1030
+#define IDC_LABEL_EXSTYLES              1031
+#define IDC_GROUP_PARENT                1032
+#define IDC_GROUP_OWNER                 1033
+#define IDC_LABEL_ICON                  1034
+#define IDC_LABEL_CURSOR                1035
+#define IDC_LABEL_BKG                   1036
 #define ID_SEARCH_FINDWINDOW            32775
 #define ID_VIEW_ALWAYSONTOP             32776
 #define ID_VIEW_PROPERTY                32778
@@ -63,7 +70,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        210
 #define _APS_NEXT_COMMAND_VALUE         32803
-#define _APS_NEXT_CONTROL_VALUE         1030
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

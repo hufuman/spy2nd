@@ -32,6 +32,9 @@ public:
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
+        m_LinkProcId.m_tip.m_hWnd = NULL;
+        m_LinkThreadId.m_tip.m_hWnd = NULL;
+
         m_LinkProcId.SubclassWindow(GetDlgItem(IDC_LINK_PROCID));
         m_LinkThreadId.SubclassWindow(GetDlgItem(IDC_LINK_THREADID));
         return TRUE;

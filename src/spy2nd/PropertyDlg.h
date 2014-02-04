@@ -83,7 +83,7 @@ public:
         AddPage(_T("Misc"),     m_MiscDlg);
 
         m_WndLayout.Init(m_hWnd);
-        m_WndLayout.AddControlByHwnd(m_Tab,         Layout_HFill | Layout_VFill);
+        m_WndLayout.AddControlByHwnd(m_Tab,         Layout_HFill);
         m_WndLayout.AddControlByHwnd(m_GeneralDlg,  Layout_HFill | Layout_VFill);
         m_WndLayout.AddControlByHwnd(m_StylesDlg,   Layout_HFill | Layout_VFill);
         m_WndLayout.AddControlByHwnd(m_WindowsDlg,  Layout_HFill | Layout_VFill);
@@ -114,16 +114,11 @@ public:
     {
         int nIndex = m_Tab.InsertItem(m_Tab.GetItemCount(), TCIF_TEXT | TCIF_PARAM, szTitle, 0, reinterpret_cast<LPARAM>(hWndPage));
 
-        CRect rcItem;
-        m_Tab.GetItemRect(0, &rcItem);
-
         CRect rcPage;
         m_Tab.GetWindowRect(&rcPage);
         ScreenToClient(&rcPage);
-        rcPage.left += rcItem.left;
-        rcPage.right -= rcItem.left;
-        rcPage.top += rcItem.bottom + 2;
-        rcPage.bottom -= 2;
+        rcPage.top = rcPage.bottom;
+        rcPage.bottom = rcPage.top + 225;
 
         ::MoveWindow(hWndPage, rcPage.left, rcPage.top, rcPage.Width(), rcPage.Height(), TRUE);
     }

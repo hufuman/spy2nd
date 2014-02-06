@@ -4,7 +4,7 @@
 #include "WndLayout.h"
 
 
-class CWndPropertyWindowsDlg : public CDialogImpl<CWndPropertyWindowsDlg>
+class CWndPropertyWindowsDlg : public CDialogImpl<CWndPropertyWindowsDlg>, public IWndPropertyViewImpl<CWndPropertyWindowsDlg>
 {
 public:
     enum { IDD = IDD_WNDPROPERTY_WINDOWS };
@@ -19,7 +19,6 @@ public:
 
     CWndPropertyWindowsDlg()
     {
-        m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
@@ -57,10 +56,8 @@ public:
         return TRUE;
     }
 
-    void RefreshProperty(HWND hTargetWnd)
+    void RefreshPropertyImpl()
     {
-        m_hTargetWnd = hTargetWnd;
-
         CString strTemp;
         HWND hWndParent = ::GetParent(m_hTargetWnd);
         HWND hWndOwner = ::GetWindow(m_hTargetWnd, GW_OWNER);
@@ -118,7 +115,6 @@ public:
     }
 
 private:
-    HWND    m_hTargetWnd;
     HBRUSH  m_hBrush;
 
     CWndLayout  m_WndLayout;

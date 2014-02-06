@@ -5,7 +5,7 @@
 #include "WndLayout.h"
 
 
-class CWndPropertyClassDlg : public CDialogImpl<CWndPropertyClassDlg>
+class CWndPropertyClassDlg : public CDialogImpl<CWndPropertyClassDlg>, public IWndPropertyViewImpl<CWndPropertyClassDlg>
 {
 public:
     enum { IDD = IDD_WNDPROPERTY_CLASS };
@@ -23,7 +23,6 @@ public:
     {
         m_hBkgBrush = NULL;
         m_bCreateBkgBrush = FALSE;
-        m_hTargetWnd = NULL;
         m_hBkgLabel = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
         m_hBkgPen = ::CreatePen(PS_SOLID, 2, RGB(255, 0, 255));
@@ -85,10 +84,10 @@ public:
         return TRUE;
     }
 
-    void RefreshProperty(HWND hTargetWnd)
+    // IWndPropertyView
+    void RefreshPropertyImpl()
     {
         CString strTemp;
-        m_hTargetWnd = hTargetWnd;
 
         // Instance
         HINSTANCE hInst = reinterpret_cast<HINSTANCE>(::GetWindowLongPtr(m_hTargetWnd, GWLP_HINSTANCE));
@@ -159,8 +158,6 @@ public:
     }
 
 private:
-    HWND    m_hTargetWnd;
-
     CWndLayout  m_WndLayout;
 
     HBRUSH  m_hBrush;

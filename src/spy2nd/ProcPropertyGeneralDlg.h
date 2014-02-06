@@ -8,7 +8,7 @@
 #include "ProcUtil.h"
 #include "ProcessInfo.h"
 
-class CProcPropertyGeneralDlg : public CDialogImpl<CProcPropertyGeneralDlg>
+class CProcPropertyGeneralDlg : public CDialogImpl<CProcPropertyGeneralDlg>, public IProcPropertyViewImpl<CProcPropertyGeneralDlg>
 {
 public:
 	enum { IDD = IDD_PROCPROPERTY_GENERAL };
@@ -70,11 +70,12 @@ public:
 		return TRUE;
 	}
 
-    void RefreshProperty(DWORD dwProcId, HANDLE hProc)
+    // IProcPropertyView
+    void RefreshPropertyImpl()
     {
         CString strTemp;
 
-        m_ProcInfo.OpenProcess(dwProcId);
+        m_ProcInfo.OpenProcess(m_dwProcId);
 
         // Icon
         {

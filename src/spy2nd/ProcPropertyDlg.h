@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ProcessInfo.h"
+#include "ProcPropertyDef.h"
+
 #include "ProcPropertyGeneralDlg.h"
 #include "ProcPropertyCountersDlg.h"
 #include "ProcPropertyThreadDlg.h"
@@ -32,6 +34,8 @@ public:
         m_dwProcId = 0;
         m_dwThreadId = 0;
         m_pWaitChainDlg = NULL;
+
+        m_uUpdateTick = 0;
     }
 
     void ShowProperty(DWORD dwProcId, DWORD dwThreadId)
@@ -41,11 +45,10 @@ public:
 
         if(!m_Proc.Open(m_dwProcId, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ))
         {
-            m_GeneralDlg.ShowWindow(SW_HIDE);
-            m_CountersDlg.ShowWindow(SW_HIDE);
-            m_ThreadDlg.ShowWindow(SW_HIDE);
-            if(m_pWaitChainDlg)
-                m_pWaitChainDlg->ShowWindow(SW_HIDE);
+            for(int i=0; i<m_Views.GetSize(); ++ i)
+            {
+                m_Views[i]->Show(FALSE);
+            }
 
             CString strTemp;
             strTemp.Format(_T("Failed to open process: %u"), dwProcId);
@@ -53,13 +56,18 @@ public:
             return;
         }
 
-        m_GeneralDlg.RefreshProperty(m_dwProcId, m_Proc);
-        m_CountersDlg.RefreshProperty(m_dwProcId, m_Proc);
+        // Set Info
+        ++ m_uUpdateTick;
+        for(int i=0; i<m_Views.GetSize(); ++ i)
+        {
+            m_Views[i]->SetInfo(m_dwProcId, m_dwThreadId, m_Proc);
+        }
+
         if(dwThreadId == 0)
         {
             if(m_bThreadInfoAdded)
             {
-                m_Tab.DeleteItem(m_Tab.GetItemCount() - 1);
+                DeletePage(m_Tab.GetItemCount() - 1);
                 m_bThreadInfoAdded = FALSE;
             }
         }
@@ -67,13 +75,10 @@ public:
         {
             if(!m_bThreadInfoAdded)
             {
-                AddPage(_T("Thread"),   m_ThreadDlg);
+                AddPage(_T("Thread"),   m_ThreadDlg, &m_ThreadDlg);
                 m_bThreadInfoAdded = TRUE;
             }
-            m_ThreadDlg.RefreshProperty(m_dwProcId, dwThreadId, m_Proc);
         }
-        if(m_pWaitChainDlg)
-            m_pWaitChainDlg->RefreshProperty(dwProcId, dwThreadId, m_Proc);
 
         SelectPage(m_Tab.GetCurSel());
     }
@@ -90,11 +95,12 @@ public:
 
         m_WndLayout.UnInit();
         m_Tab.m_hWnd = NULL;
-        m_GeneralDlg.m_hWnd = NULL;
-        m_CountersDlg.m_hWnd = NULL;
-        m_ThreadDlg.m_hWnd = NULL;
-        if(m_pWaitChainDlg)
-            m_pWaitChainDlg->m_hWnd = NULL;
+
+        for(int i=0; i<m_Views.GetSize(); ++ i)
+        {
+            m_Views[i]->Destroy();
+        }
+
         m_hCurrentPage = NULL;
         m_bThreadInfoAdded = FALSE;
 
@@ -109,14 +115,14 @@ public:
         m_CountersDlg.Create(m_hWnd);
         m_ThreadDlg.Create(m_hWnd);
 
-        AddPage(_T("General"),  m_GeneralDlg);
-        AddPage(_T("Counters"), m_CountersDlg);
+        AddPage(_T("General"),  m_GeneralDlg, &m_GeneralDlg);
+        AddPage(_T("Counters"), m_CountersDlg, &m_CountersDlg);
 
         if(IsWctAvailable())
         {
             m_pWaitChainDlg = new CProcPropertyWaitChainDlg;
             m_pWaitChainDlg->Create(m_hWnd);
-            AddPage(_T("WaitChain"), *m_pWaitChainDlg);
+            AddPage(_T("WaitChain"), *m_pWaitChainDlg, m_pWaitChainDlg);
         }
 
         m_bThreadInfoAdded = FALSE;
@@ -141,6 +147,7 @@ public:
 
     LRESULT OnBtnRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
+        ++ m_uUpdateTick;
         ShowProperty(m_dwProcId, m_dwThreadId);
         return 0;
     }
@@ -151,7 +158,7 @@ public:
 		return 0;
 	}
 
-    void AddPage(LPCTSTR szTitle, HWND hWndPage)
+    void AddPage(LPCTSTR szTitle, HWND hWndPage, IProcPropertyView* pView)
     {
         int nIndex = m_Tab.InsertItem(m_Tab.GetItemCount(), TCIF_TEXT | TCIF_PARAM, szTitle, 0, reinterpret_cast<LPARAM>(hWndPage));
 
@@ -162,6 +169,14 @@ public:
         rcPage.bottom = rcPage.top + 225;
 
         ::MoveWindow(hWndPage, rcPage.left, rcPage.top, rcPage.Width(), rcPage.Height(), TRUE);
+
+        m_Views.Add(pView);
+    }
+
+    void DeletePage(int nIndex)
+    {
+        m_Views.RemoveAt(nIndex);
+        m_Tab.DeleteItem(nIndex);
     }
 
     void SelectPage(int nIndex)
@@ -177,7 +192,11 @@ public:
         m_hCurrentPage = reinterpret_cast<HWND>(item.lParam);
 
         if(m_Proc != NULL)
+        {
             ::ShowWindow(m_hCurrentPage, SW_SHOW);
+
+            m_Views[m_Tab.GetCurSel()]->RefreshProperty(m_uUpdateTick);
+        }
     }
 
 private:
@@ -190,10 +209,14 @@ private:
     CProcPropertyThreadDlg      m_ThreadDlg;
     CProcPropertyWaitChainDlg*  m_pWaitChainDlg;
 
-    BOOL        m_bThreadInfoAdded;
+    ATL::CSimpleArray<IProcPropertyView*>    m_Views;
+
+    BOOL    m_bThreadInfoAdded;
 
     DWORD   m_dwProcId;
     DWORD   m_dwThreadId;
     HWND    m_hCurrentPage;
+
+    ULONG   m_uUpdateTick;
 };
 

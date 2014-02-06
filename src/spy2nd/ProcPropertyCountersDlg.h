@@ -7,7 +7,7 @@
 
 #include "ProcUtil.h"
 
-class CProcPropertyCountersDlg : public CDialogImpl<CProcPropertyCountersDlg>
+class CProcPropertyCountersDlg : public CDialogImpl<CProcPropertyCountersDlg>, public IProcPropertyViewImpl<CProcPropertyCountersDlg>
 {
 public:
 	enum { IDD = IDD_PROCPROPERTY_COUNTERS };
@@ -21,7 +21,6 @@ public:
 
     CProcPropertyCountersDlg()
     {
-        m_hProc = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
@@ -35,12 +34,11 @@ public:
 		return TRUE;
 	}
 
-    void RefreshProperty(DWORD dwProcId, HANDLE hProc)
+    // IProcPropertyView
+    void RefreshPropertyImpl()
     {
         CString strTemp;
         DWORD dwTemp = 0;
-
-        m_hProc = hProc;
 
         // Gdi Objects
         strTemp.Format(_T("%u"), ::GetGuiResources(m_hProc, GR_GDIOBJECTS));
@@ -106,7 +104,6 @@ public:
     }
 
 private:
-    HANDLE  m_hProc;
     HBRUSH  m_hBrush;
 };
 

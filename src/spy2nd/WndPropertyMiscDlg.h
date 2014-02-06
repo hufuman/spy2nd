@@ -4,7 +4,7 @@
 
 
 
-class CWndPropertyMiscDlg : public CDialogImpl<CWndPropertyMiscDlg>
+class CWndPropertyMiscDlg : public CDialogImpl<CWndPropertyMiscDlg>, public IWndPropertyViewImpl<CWndPropertyMiscDlg>
 {
 public:
     enum { IDD = IDD_WNDPROPERTY_MISC };
@@ -21,7 +21,6 @@ public:
 
     CWndPropertyMiscDlg()
     {
-        m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
@@ -52,10 +51,8 @@ public:
         return 0;
     }
 
-    void RefreshProperty(HWND hTargetWnd)
+    void RefreshPropertyImpl()
     {
-        m_hTargetWnd = hTargetWnd;
-
         DWORD dwProcId = 0;
         DWORD dwThreadId = ::GetWindowThreadProcessId(m_hTargetWnd, &dwProcId);
 
@@ -71,7 +68,6 @@ public:
     }
 
 private:
-    HWND    m_hTargetWnd;
     HBRUSH  m_hBrush;
 
     CHyperLink  m_LinkProcId;

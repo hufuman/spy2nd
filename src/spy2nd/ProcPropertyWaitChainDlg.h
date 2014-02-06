@@ -7,7 +7,7 @@
 
 #include "WctWrapper.h"
 
-class CProcPropertyWaitChainDlg : public CDialogImpl<CProcPropertyWaitChainDlg>
+class CProcPropertyWaitChainDlg : public CDialogImpl<CProcPropertyWaitChainDlg>, public IProcPropertyViewImpl<CProcPropertyWaitChainDlg>
 {
 public:
 	enum { IDD = IDD_PROCPROPERTY_WAIT_CHAIN };
@@ -44,7 +44,8 @@ public:
 		return TRUE;
 	}
 
-    void RefreshProperty(DWORD dwProcId, DWORD dwThreadId, HANDLE hProc)
+    // IProcPropertyView
+    void RefreshPropertyImpl()
     {
         CString strTemp;
         DWORD dwTemp = 0;
@@ -56,18 +57,18 @@ public:
         std::auto_ptr<CWctWrapper> pWctWrapper(new CWctWrapper);
 
         BOOL bResult = FALSE;
-        if(dwThreadId == 0)
-            bResult = pWctWrapper->InitProcessChain(dwProcId);
+        if(m_dwThreadId == 0)
+            bResult = pWctWrapper->InitProcessChain(m_dwProcId);
         else
-            bResult = pWctWrapper->InitThreadChain(dwThreadId);
+            bResult = pWctWrapper->InitThreadChain(m_dwThreadId);
 
         if(!bResult)
         {
             CString strTemp;
-            if(dwThreadId == 0)
-                strTemp.Format(_T("Failed to get wait chain for process: %u"), dwProcId);
+            if(m_dwThreadId == 0)
+                strTemp.Format(_T("Failed to get wait chain for process: %u"), m_dwProcId);
             else
-                strTemp.Format(_T("Failed to get wait chain for thread: %u"), dwThreadId);
+                strTemp.Format(_T("Failed to get wait chain for thread: %u"), m_dwThreadId);
             MessageBox(strTemp);
             return;
         }

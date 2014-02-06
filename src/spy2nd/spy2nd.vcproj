@@ -272,6 +272,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\WndPropertyDef.h"
+						>
+					</File>
+					<File
 						RelativePath=".\WndPropertyDlg.h"
 						>
 					</File>
@@ -305,6 +309,10 @@
 					>
 					<File
 						RelativePath=".\ProcPropertyCountersDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ProcPropertyDef.h"
 						>
 					</File>
 					<File

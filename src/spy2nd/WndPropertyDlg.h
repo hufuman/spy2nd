@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include "WndPropertyDef.h"
+
 #include "WndPropertyGeneralDlg.h"
 #include "WndPropertyStylesDlg.h"
 #include "WndPropertyWindowsDlg.h"
@@ -31,17 +33,20 @@ public:
     {
         m_hCurrentPage = NULL;
         m_hTargetWnd = NULL;
+        m_uUpdateTick = 0;
     }
 
     void ShowProperty(HWND hWnd)
     {
         m_hTargetWnd = hWnd;
 
-        m_GeneralDlg.RefreshProperty(m_hTargetWnd);
-        m_StylesDlg.RefreshProperty(m_hTargetWnd);
-        m_WindowsDlg.RefreshProperty(m_hTargetWnd);
-        m_ClassDlg.RefreshProperty(m_hTargetWnd);
-        m_MiscDlg.RefreshProperty(m_hTargetWnd);
+        ++ m_uUpdateTick;
+        for(int i=0; i<m_Views.GetSize(); ++ i)
+        {
+            m_Views[i]->SetInfo(hWnd);
+        }
+
+        SelectPage(m_Tab.GetCurSel());
     }
 
     LRESULT OnTabSelChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
@@ -56,12 +61,12 @@ public:
 
         m_WndLayout.UnInit();
         m_Tab.m_hWnd = NULL;
-        m_GeneralDlg.m_hWnd = NULL;
-        m_StylesDlg.m_hWnd = NULL;
-        m_WindowsDlg.m_hWnd = NULL;
-        m_ClassDlg.m_hWnd = NULL;
-        m_MiscDlg.m_hWnd = NULL;
         m_hCurrentPage = NULL;
+
+        for(int i=0; i<m_Views.GetSize(); ++ i)
+        {
+            m_Views[i]->Destroy();
+        }
 
         return 0;
     }
@@ -82,6 +87,12 @@ public:
         AddPage(_T("Class"),    m_ClassDlg);
         AddPage(_T("Misc"),     m_MiscDlg);
 
+        m_Views.Add(&m_GeneralDlg);
+        m_Views.Add(&m_StylesDlg);
+        m_Views.Add(&m_WindowsDlg);
+        m_Views.Add(&m_ClassDlg);
+        m_Views.Add(&m_MiscDlg);
+
         m_WndLayout.Init(m_hWnd);
         m_WndLayout.AddControlByHwnd(m_Tab,         Layout_HFill);
         m_WndLayout.AddControlByHwnd(m_GeneralDlg,  Layout_HFill | Layout_VFill);
@@ -92,14 +103,13 @@ public:
         m_WndLayout.AddControlById(IDOK, Layout_Right | Layout_Bottom);
         m_WndLayout.AddControlById(IDCANCEL, Layout_Right | Layout_Bottom);
 
-        SelectPage(0);
-
 		CenterWindow(GetParent());
 		return TRUE;
 	}
 
     LRESULT OnBtnRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
+        ++ m_uUpdateTick;
         ShowProperty(m_hTargetWnd);
         return 0;
     }
@@ -136,6 +146,8 @@ public:
         m_hCurrentPage = reinterpret_cast<HWND>(item.lParam);
 
         ::ShowWindow(m_hCurrentPage, SW_SHOW);
+
+        m_Views[m_Tab.GetCurSel()]->RefreshProperty(m_uUpdateTick);
     }
 
 private:
@@ -148,6 +160,9 @@ private:
     CWndPropertyWindowsDlg m_WindowsDlg;
     CWndPropertyClassDlg   m_ClassDlg;
     CWndPropertyMiscDlg    m_MiscDlg;
+
+    ULONG   m_uUpdateTick;
+    ATL::CSimpleArray<IWndPropertyView*>   m_Views;
 
     HWND    m_hTargetWnd;
     HWND    m_hCurrentPage;

@@ -8,7 +8,7 @@
 #include "ProcUtil.h"
 #include "ThreadInfo.h"
 
-class CProcPropertyThreadDlg : public CDialogImpl<CProcPropertyThreadDlg>
+class CProcPropertyThreadDlg : public CDialogImpl<CProcPropertyThreadDlg>, public IProcPropertyViewImpl<CProcPropertyThreadDlg>
 {
 public:
 	enum { IDD = IDD_PROCPROPERTY_THREAD };
@@ -35,17 +35,18 @@ public:
 		return TRUE;
 	}
 
-    void RefreshProperty(DWORD dwProcId, DWORD dwThreadId, HANDLE hProc)
+    // IProcPropertyView
+    void RefreshPropertyImpl()
     {
         CString strTemp;
         DWORD dwTemp = 0;
 
         CThreadInfo threadInfo;
 
-        SetDlgItemInt(IDC_LABEL_THREAD_ID, dwThreadId, FALSE);
+        SetDlgItemInt(IDC_LABEL_THREAD_ID, m_dwThreadId, FALSE);
 
         CString strPriority;
-        if(threadInfo.Open(dwThreadId))
+        if(threadInfo.Open(m_dwThreadId))
         {
             SetDlgItemText(IDC_LABEL_PRIORITY, threadInfo.GetPriority());
             SetDlgItemText(IDC_LABEL_DESKTOP, threadInfo.GetDesktop());

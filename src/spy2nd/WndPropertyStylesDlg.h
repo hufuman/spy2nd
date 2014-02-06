@@ -4,7 +4,7 @@
 #include "WndStyles.h"
 
 
-class CWndPropertyStylesDlg : public CDialogImpl<CWndPropertyStylesDlg>
+class CWndPropertyStylesDlg : public CDialogImpl<CWndPropertyStylesDlg>, public IWndPropertyViewImpl<CWndPropertyStylesDlg>
 {
 public:
     enum { IDD = IDD_WNDPROPERTY_STYLES };
@@ -19,7 +19,6 @@ public:
 
     CWndPropertyStylesDlg()
     {
-        m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
@@ -102,16 +101,14 @@ public:
         return TRUE;
     }
 
-    void RefreshProperty(HWND hTargetWnd)
+    void RefreshPropertyImpl()
     {
-        m_hTargetWnd = hTargetWnd;
-
-        DWORD dwStyles = ::GetWindowLongPtr(hTargetWnd, GWL_STYLE);
-        DWORD dwExtendedStyles = ::GetWindowLongPtr(hTargetWnd, GWL_EXSTYLE);
+        DWORD dwStyles = ::GetWindowLongPtr(m_hTargetWnd, GWL_STYLE);
+        DWORD dwExtendedStyles = ::GetWindowLongPtr(m_hTargetWnd, GWL_EXSTYLE);
 
         StringArray arrStyles, arrExtendedStyles;
-        WndStyles::GetStylesTitle(hTargetWnd, dwStyles, arrStyles);
-        WndStyles::GetExtendedStylesTitle(hTargetWnd, dwExtendedStyles, arrExtendedStyles);
+        WndStyles::GetStylesTitle(m_hTargetWnd, dwStyles, arrStyles);
+        WndStyles::GetExtendedStylesTitle(m_hTargetWnd, dwExtendedStyles, arrExtendedStyles);
 
         CString strTemp;
 
@@ -143,7 +140,6 @@ public:
     }
 
 private:
-    HWND    m_hTargetWnd;
     HBRUSH  m_hBrush;
     CRect   m_rcEdit;
     CRect   m_rcLabel;

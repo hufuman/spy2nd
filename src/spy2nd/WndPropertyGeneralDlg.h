@@ -2,9 +2,10 @@
 
 
 #include "WndLayout.h"
+#include "WndPropertyDef.h"
 
 
-class CWndPropertyGeneralDlg : public CDialogImpl<CWndPropertyGeneralDlg>
+class CWndPropertyGeneralDlg : public CDialogImpl<CWndPropertyGeneralDlg>, public IWndPropertyViewImpl<CWndPropertyGeneralDlg>
 {
 public:
 	enum { IDD = IDD_WNDPROPERTY_GENERAL };
@@ -18,7 +19,6 @@ public:
 
     CWndPropertyGeneralDlg()
     {
-        m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);
     }
 
@@ -40,10 +40,9 @@ public:
 		return TRUE;
 	}
 
-    void RefreshProperty(HWND hTargetWnd)
+    // IWndPropertyView
+    void RefreshPropertyImpl()
     {
-        m_hTargetWnd = hTargetWnd;
-
         CWindow wnd;
         wnd.Attach(m_hTargetWnd);
 
@@ -102,7 +101,6 @@ public:
     }
 
 private:
-    HWND        m_hTargetWnd;
     HBRUSH      m_hBrush;
     CWndLayout  m_WndLayout;
 };

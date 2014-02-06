@@ -133,7 +133,10 @@ public:
         if(pView->itemNew.hItem == NULL)
             return 0;
 
-        ShowPropertyImpl(pView->itemNew.hItem, FALSE);
+        BOOL bProcShow = (m_ProcPropertyDlg.m_hWnd != NULL && m_ProcPropertyDlg.IsWindowVisible());
+        BOOL bWndShow = (m_WndPropertyDlg.m_hWnd != NULL && m_WndPropertyDlg.IsWindowVisible());
+        if(bProcShow || bWndShow)
+            ShowPropertyImpl(pView->itemNew.hItem);
         return 0;
     }
 
@@ -407,10 +410,10 @@ public:
         if(m_WndPropertyDlg.m_hWnd != NULL)
             m_WndPropertyDlg.ShowWindow(SW_SHOW);
 
-        ShowPropertyImpl(hItem, TRUE);
+        ShowPropertyImpl(hItem);
     }
 
-    void ShowPropertyImpl(HTREEITEM hItem, BOOL bCreate)
+    void ShowPropertyImpl(HTREEITEM hItem)
     {
         int nIndex = m_ItemInfoMap.FindKey(hItem);
         if(nIndex == -1)
@@ -419,33 +422,29 @@ public:
         stItemInfo& itemInfo = m_ItemInfoMap.GetValueAt(nIndex);
         if(itemInfo.type == ItemProc || itemInfo.type == ItemThread)
         {
-            if(m_ProcPropertyDlg.m_hWnd == NULL)
-            {
-                if(bCreate)
-                    m_ProcPropertyDlg.Create(m_hWnd);
-                else
-                    return;
-            }
+            BOOL bWndShow = (m_WndPropertyDlg.m_hWnd != NULL && m_WndPropertyDlg.IsWindowVisible());
+            if(bWndShow)
+                m_WndPropertyDlg.ShowWindow(SW_HIDE);
 
-            if(m_ProcPropertyDlg.m_hWnd != NULL && m_ProcPropertyDlg.IsWindowVisible())
-            {
-                m_ProcPropertyDlg.ShowProperty(itemInfo.dwProcId, itemInfo.dwThreadId);
-            }
+            if(m_ProcPropertyDlg.m_hWnd == NULL)
+                m_ProcPropertyDlg.Create(m_hWnd);
+
+            if(!m_ProcPropertyDlg.IsWindowVisible())
+                m_ProcPropertyDlg.ShowWindow(SW_SHOWNOACTIVATE);
+            m_ProcPropertyDlg.ShowProperty(itemInfo.dwProcId, itemInfo.dwThreadId);
         }
         else
         {
-            if(m_WndPropertyDlg.m_hWnd == NULL)
-            {
-                if(bCreate)
-                    m_WndPropertyDlg.Create(m_hWnd);
-                else
-                    return;
-            }
+            BOOL bProcShow = (m_ProcPropertyDlg.m_hWnd != NULL && m_ProcPropertyDlg.IsWindowVisible());
+            if(bProcShow)
+                m_ProcPropertyDlg.ShowWindow(SW_HIDE);
 
-            if(m_WndPropertyDlg.m_hWnd != NULL && m_WndPropertyDlg.IsWindowVisible())
-            {
-                m_WndPropertyDlg.ShowProperty(itemInfo.hWnd);
-            }
+            if(m_WndPropertyDlg.m_hWnd == NULL)
+                m_WndPropertyDlg.Create(m_hWnd);
+
+            if(!m_WndPropertyDlg.IsWindowVisible())
+                m_WndPropertyDlg.ShowWindow(SW_SHOWNOACTIVATE);
+            m_WndPropertyDlg.ShowProperty(itemInfo.hWnd);
         }
     }
 

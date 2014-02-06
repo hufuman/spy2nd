@@ -36,6 +36,7 @@ public:
     {
         m_hOldCursor = NULL;
         m_hDragCursor = NULL;
+        m_hLastWnd = NULL;
         m_bDownAtSearchIcon = FALSE;
 
         GetDlgItem(IDC_ICON_SEARCH).GetWindowRect(&m_rcSearchIcon);
@@ -53,6 +54,17 @@ public:
         if(m_hDragCursor == NULL)
             m_hDragCursor = LoadCursor(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDC_CURSOR_SEARCH_WINDOW));
         m_hOldCursor = SetCursor(m_hDragCursor);
+        if(m_HighlightDlg.m_hWnd == NULL)
+        {
+            m_HighlightDlg.Create(m_hWnd);
+        }
+
+        POINT Pt;
+        ::GetCursorPos(&Pt);
+        HWND hWnd = ::WindowFromPoint(Pt);
+
+        m_HighlightDlg.SetHwnd(hWnd);
+        m_HighlightDlg.ShowWindow(SW_SHOWNOACTIVATE);
     }
 
     void UpdateDrag()
@@ -79,10 +91,18 @@ public:
 
         SetCursor(m_hOldCursor);
         m_bDownAtSearchIcon = FALSE;
+
+        if(m_HighlightDlg.m_hWnd)
+            m_HighlightDlg.ShowWindow(SW_HIDE);
     }
 
     void UpdateInfo(HWND hWnd)
     {
+        if(m_hLastWnd == hWnd)
+            return;
+
+        m_hLastWnd = hWnd;
+
         CString strTemp;
 
         if(hWnd == NULL)
@@ -117,6 +137,8 @@ public:
                 rcWnd.right, rcWnd.bottom,
                 rcWnd.Width(), rcWnd.Height());
             SetDlgItemText(IDC_LABEL_RECT, strTemp);
+
+            m_HighlightDlg.SetHwnd(hWnd);
         }
     }
 
@@ -214,6 +236,7 @@ public:
             return 0;
         }
 
+        m_hLastWnd = HWND_TOPMOST;
         UpdateInfo(hTargetWnd);
         return 0;
     }
@@ -256,6 +279,9 @@ private:
     HCURSOR m_hOldCursor;
     BOOL    m_bDownAtSearchIcon;
 
+    HWND    m_hLastWnd;
+
     IView*  m_pView;
+    CHighlightDlg   m_HighlightDlg;
 };
 

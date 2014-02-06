@@ -12,35 +12,39 @@ public:
 	BEGIN_MSG_MAP(CHighlightDlg)
 
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-        MESSAGE_HANDLER(WM_TIMER, OnTimer)
         MESSAGE_HANDLER(WM_ERASEBKGND, OnErasebkgnd)
 
         REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-    CHighlightDlg(HWND hWndHighlight)
+    CHighlightDlg()
     {
-        m_uTimer = 0;
-        m_nCount = 0;
-        m_bHighlight = true;
-        m_hWndHighlight = hWndHighlight;
+        m_hBkgBrush = reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH));
+        m_hWndHighlight = NULL;
     }
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-        if(m_hWndHighlight == NULL || !::IsWindow(m_hWndHighlight))
-        {
-            DestroyWindow();
-            delete this;
-            return TRUE;
-        }
-
-        m_uTimer = SetTimer(1234, 200, NULL);
-
-        Prepare();
 		return TRUE;
 	}
 
+    void SetBrush(HBRUSH hBrush)
+    {
+        m_hBkgBrush = hBrush;
+    }
+
+    void SetHwnd(HWND hWnd)
+    {
+        m_hWndHighlight = hWnd;
+        if(m_hWnd)
+        {
+            Prepare();
+            Invalidate();
+            UpdateWindow();
+        }
+    }
+
+private:
     void Prepare()
     {
         CRect rcWnd;
@@ -61,43 +65,13 @@ public:
         CRect rcWnd;
         GetClientRect(&rcWnd);
 
-        if(m_bHighlight)
-            ::FillRect(reinterpret_cast<HDC>(wParam), &rcWnd, reinterpret_cast<HBRUSH>(::GetStockObject(GRAY_BRUSH)));
-        else
-            ::FillRect(reinterpret_cast<HDC>(wParam), &rcWnd, reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH)));
+        ::FillRect(reinterpret_cast<HDC>(wParam), &rcWnd, m_hBkgBrush);
 
-        m_bHighlight = !m_bHighlight;
         return 1;
-    }
-
-    LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-    {
-        if(m_uTimer != wParam)
-        {
-            bHandled = FALSE;
-            return 0;
-        }
-
-        Invalidate();
-        UpdateWindow();
-
-        if((++ m_nCount) > 8)
-        {
-            DestroyWindow();
-        }
-
-        return 0;
-    }
-
-    virtual void OnFinalMessage(HWND /*hWnd*/)
-    {
-        delete this;
     }
 
 private:
     HWND        m_hWndHighlight;
-    UINT_PTR    m_uTimer;
-    bool        m_bHighlight;
-    UINT        m_nCount;
+    HBRUSH      m_hBkgBrush;
 };
 

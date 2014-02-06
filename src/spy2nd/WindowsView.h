@@ -6,7 +6,7 @@
 
 
 #include "ViewOptions.h"
-#include "HighlightDlg.h"
+#include "HighlightFlasher.h"
 #include "WndPropertyDlg.h"
 
 #include "TreeViewUtil.h"
@@ -56,10 +56,8 @@ private:
 
         HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
 
-        CHighlightDlg* pHighlightDlg = new CHighlightDlg(hWnd);
-        pHighlightDlg->Create(NULL, 0);
-        pHighlightDlg->ShowWindow(SW_SHOWNOACTIVATE);
-        pHighlightDlg->UpdateWindow();
+        CHighlightFlasher* flasher = new CHighlightFlasher(hWnd);
+        flasher->Flash();
         return 0;
     }
 

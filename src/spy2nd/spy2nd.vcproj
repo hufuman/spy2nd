@@ -234,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HighlightFlasher.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.h"
 				>
 			</File>

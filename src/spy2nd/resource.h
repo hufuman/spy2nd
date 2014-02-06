@@ -20,7 +20,6 @@
 #define IDD_PROCPROPERTY_GENERAL        215
 #define IDD_PROCPROPERTY_COUNTERS       216
 #define IDD_PROCPROPERTY_THREAD         217
-#define IDD_PROCPROPERTY_THREAD1        218
 #define IDD_PROCPROPERTY_WAIT_CHAIN     218
 #define IDC_LABEL_AUTHOR                1001
 #define IDC_TAB_PROPERTY                1003
@@ -104,13 +103,19 @@
 #define ID_PROCESSMENU_PROPERTY         32803
 #define ID_PROCESSMENU_REFRESH          32804
 #define ID_PROCESSMENU_MESSAGE          32805
+#define IDC_EDIT_CLEAR                  32808
+#define IDC_EDIT_COPY                   32809
+#define ID_CHANGE_VIEW                  32812
+#define ID_VIEW_A                       32813
+#define ID_VIEW_NEXTVIEW                32814
+#define ID_VIEW_PREVVIEW                32815
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        210
-#define _APS_NEXT_COMMAND_VALUE         32806
+#define _APS_NEXT_COMMAND_VALUE         32817
 #define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -10,7 +10,7 @@ enum SpyViewType
     ViewWindows     = 0,
     ViewProcesses   = 1,
     ViewLogMsg      = 2,
-    ViewLogMax      = 3,
+    ViewMax         = 3,
 };
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -69,6 +69,7 @@ public:
         COMMAND_ID_HANDLER(ID_VIEW_SHOWALL, OnViewShowAll)
         COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnViewRefresh)
         COMMAND_ID_HANDLER(ID_VIEW_PROPERTY, OnViewProperty)
+        COMMAND_ID_HANDLER(ID_CHANGE_VIEW, OnChangeView)
 
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
@@ -248,6 +249,29 @@ private:
         return 0;
     }
 
+    LRESULT OnChangeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        SpyViewType type = ViewNone;
+        if(m_SpyViewType == ViewWindows)
+        {
+            type = ViewProcesses;
+        }
+        else if(m_SpyViewType == ViewProcesses)
+        {
+            if(m_pView[ViewLogMsg]->IsCreated())
+                type = ViewLogMsg;
+            else
+                type = ViewWindows;
+        }
+        else if(m_SpyViewType == ViewLogMsg)
+        {
+            type = ViewWindows;
+        }
+        if(type != ViewNone)
+            ShowView(type);
+        return 0;
+    }
+
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		CAboutDlg dlg;
@@ -260,7 +284,7 @@ private:
     CLogMsgView     m_LogMsgView;
     CProcessesView  m_ProcessView;
 
-    IView*          m_pView[ViewLogMax];
+    IView*          m_pView[ViewMax];
 
     SpyViewType     m_SpyViewType;
 };

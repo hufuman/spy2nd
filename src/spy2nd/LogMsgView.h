@@ -53,6 +53,11 @@ public:
         return m_hWnd;
     }
 
+    virtual void ShowProperty()
+    {
+        ;
+    }
+
 private:
     IViewHolder*    m_pHolder;
 };

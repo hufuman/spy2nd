@@ -4,12 +4,12 @@
 #include "WndStyles.h"
 
 
-class CPropertyStylesDlg : public CDialogImpl<CPropertyStylesDlg>
+class CWndPropertyStylesDlg : public CDialogImpl<CWndPropertyStylesDlg>
 {
 public:
-    enum { IDD = IDD_PROPERTY_STYLES };
+    enum { IDD = IDD_WNDPROPERTY_STYLES };
 
-    BEGIN_MSG_MAP(CPropertyStylesDlg)
+    BEGIN_MSG_MAP(CWndPropertyStylesDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
@@ -17,7 +17,7 @@ public:
         MESSAGE_HANDLER(WM_SIZE, OnSize)
     END_MSG_MAP()
 
-    CPropertyStylesDlg()
+    CWndPropertyStylesDlg()
     {
         m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);

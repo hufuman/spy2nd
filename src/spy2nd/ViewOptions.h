@@ -29,4 +29,5 @@ public:
     virtual void Show(BOOL bShow) = 0;
     virtual BOOL IsCreated() = 0;
     virtual HWND GetHwnd() = 0;
+    virtual void ShowProperty() = 0;
 };

@@ -5,12 +5,12 @@
 #include "WndLayout.h"
 
 
-class CPropertyClassDlg : public CDialogImpl<CPropertyClassDlg>
+class CWndPropertyClassDlg : public CDialogImpl<CWndPropertyClassDlg>
 {
 public:
-    enum { IDD = IDD_PROPERTY_CLASS };
+    enum { IDD = IDD_WNDPROPERTY_CLASS };
 
-    BEGIN_MSG_MAP(CPropertyClassDlg)
+    BEGIN_MSG_MAP(CWndPropertyClassDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
@@ -19,7 +19,7 @@ public:
         MESSAGE_HANDLER(WM_DRAWITEM,        OnDrawItem)
     END_MSG_MAP()
 
-    CPropertyClassDlg()
+    CWndPropertyClassDlg()
     {
         m_hBkgBrush = NULL;
         m_bCreateBkgBrush = FALSE;

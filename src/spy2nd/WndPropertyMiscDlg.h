@@ -4,12 +4,12 @@
 
 
 
-class CPropertyMiscDlg : public CDialogImpl<CPropertyMiscDlg>
+class CWndPropertyMiscDlg : public CDialogImpl<CWndPropertyMiscDlg>
 {
 public:
-    enum { IDD = IDD_PROPERTY_MISC };
+    enum { IDD = IDD_WNDPROPERTY_MISC };
 
-    BEGIN_MSG_MAP(CPropertyMiscDlg)
+    BEGIN_MSG_MAP(CWndPropertyMiscDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CTLCOLOREDIT,    OnCtlColor)
         MESSAGE_HANDLER(WM_CTLCOLORSTATIC,  OnCtlColor)
@@ -19,7 +19,7 @@ public:
         COMMAND_ID_HANDLER(IDC_LINK_THREADID, OnThreadIdClicked)
     END_MSG_MAP()
 
-    CPropertyMiscDlg()
+    CWndPropertyMiscDlg()
     {
         m_hTargetWnd = NULL;
         m_hBrush = ::GetSysColorBrush(COLOR_WINDOW);

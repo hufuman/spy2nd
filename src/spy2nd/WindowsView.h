@@ -7,7 +7,7 @@
 
 #include "ViewOptions.h"
 #include "HighlightDlg.h"
-#include "PropertyDlg.h"
+#include "WndPropertyDlg.h"
 
 class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>, public IView
 {
@@ -74,22 +74,16 @@ private:
 
     LRESULT OnWindowMenuProperty(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        if(m_PropertyDlg.m_hWnd == NULL)
-        {
-            m_PropertyDlg.Create(m_hWnd);
-        }
-
-        HTREEITEM hItem = GetSelectedItem();
-        if(hItem == NULL)
-            return 0;
-
-        HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
-        m_PropertyDlg.ShowProperty(hWnd);
+        ShowProperty();
         return 0;
     }
 
     void ShowContextMenu()
     {
+        HTREEITEM hItem = GetSelectedItem();
+        if(hItem == NULL)
+            return;
+
         CMenu menu;
         menu.LoadMenu(IDR_MENU_WINDOW);
 
@@ -203,6 +197,8 @@ public:
 
     virtual void Show(BOOL bShow)
     {
+        if(!bShow && m_PropertyDlg.m_hWnd != NULL)
+            m_PropertyDlg.ShowWindow(SW_HIDE);
         ShowWindow(bShow ? SW_SHOW : SW_HIDE);
     }
 
@@ -216,8 +212,23 @@ public:
         return m_hWnd;
     }
 
+    virtual void ShowProperty()
+    {
+        if(m_PropertyDlg.m_hWnd == NULL)
+        {
+            m_PropertyDlg.Create(m_hWnd);
+        }
+
+        HTREEITEM hItem = GetSelectedItem();
+        if(hItem == NULL)
+            return;
+
+        HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
+        m_PropertyDlg.ShowProperty(hWnd);
+    }
+
 private:
     CImageList      m_ImageList;
     IViewHolder*    m_pHolder;
-    CPropertyDlg    m_PropertyDlg;
+    CWndPropertyDlg m_PropertyDlg;
 };

@@ -6,6 +6,7 @@
 
 
 #include "ViewOptions.h"
+#include "ProcPropertyDlg.h"
 #include <TlHelp32.h>
 
 class CProcessesView : public CWindowImpl<CProcessesView, CTreeViewCtrl>, public IView
@@ -26,10 +27,55 @@ class CProcessesView : public CWindowImpl<CProcessesView, CTreeViewCtrl>, public
         ThreadInfoArray vctThreads;
     };
     typedef ATL::CSimpleArray<stProcessInfo> ProcessInfoArray;
+
+    enum ItemType
+    {
+        ItemProc,
+        ItemThread,
+        ItemHwnd,
+    };
+    struct stItemInfo
+    {
+        stItemInfo(DWORD procId)
+        {
+            type = ItemProc;
+            dwProcId = procId;
+            dwThreadId = 0;
+            hWnd = 0;
+        }
+        stItemInfo(DWORD procId, DWORD threadId)
+        {
+            type = ItemThread;
+            dwProcId = procId;
+            dwThreadId = threadId;
+            hWnd = 0;
+        }
+        stItemInfo(DWORD procId, HWND wnd)
+        {
+            type = ItemHwnd;
+            dwProcId = procId;
+            dwThreadId = 0;
+            hWnd = wnd;
+        }
+        ItemType type;
+        DWORD dwProcId;
+        DWORD dwThreadId;
+        HWND  hWnd;
+    };
+    typedef ATL::CSimpleMap<HTREEITEM, stItemInfo> ItemInfoMap;
+
 public:
 	DECLARE_WND_SUPERCLASS(_T("SpyProcessesView"), CTreeViewCtrl::GetWndClassName())
 
-	BEGIN_MSG_MAP(CProcessesView)
+    BEGIN_MSG_MAP(CProcessesView)
+        MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
+
+        COMMAND_ID_HANDLER(ID_PROCESSMENU_MESSAGE,  OnProcessMenuMessage)
+        COMMAND_ID_HANDLER(ID_PROCESSMENU_REFRESH,  OnProcessMenuRefresh)
+        COMMAND_ID_HANDLER(ID_PROCESSMENU_PROPERTY, OnProcessMenuProperty)
+
+        REFLECTED_NOTIFY_CODE_HANDLER(NM_RCLICK, OnRClicked)
+        REFLECTED_NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnItemSelChanged)
 	END_MSG_MAP()
 
     CProcessesView()
@@ -40,7 +86,71 @@ public:
 // Handler prototypes (uncomment arguments if needed):
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+    //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+
+    LRESULT OnProcessMenuMessage(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        return 0;
+    }
+
+    LRESULT OnProcessMenuRefresh(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        Refresh(m_pHolder->GetViewOptions());
+        return 0;
+    }
+
+    LRESULT OnProcessMenuProperty(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        ShowProperty();
+        return 0;
+    }
+
+    LRESULT OnContextMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        ShowContextMenu();
+        return 0;
+    }
+
+    LRESULT OnRClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+    {
+        POINT Pt;
+        ::GetCursorPos(&Pt);
+        ScreenToClient(&Pt);
+
+        UINT uFlags = 0;
+        HTREEITEM hItem = this->HitTest(Pt, &uFlags);
+        if(hItem == NULL)
+            return 0;
+
+        this->Select(hItem, TVGN_CARET);
+        ShowContextMenu();
+        return 0;
+    }
+
+    LRESULT OnItemSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+    {
+        NMTREEVIEW* pView = reinterpret_cast<NMTREEVIEW*>(pnmh);
+        if(pView->itemNew.hItem == NULL)
+            return 0;
+
+        ShowPropertyImpl(pView->itemNew.hItem, FALSE);
+        return 0;
+    }
+
+    void ShowContextMenu()
+    {
+        HTREEITEM hItem = GetSelectedItem();
+        if(hItem == NULL)
+            return;
+
+        CMenu menu;
+        menu.LoadMenu(IDR_MENU_PROCESS);
+
+        POINT Pt;
+        ::GetCursorPos(&Pt);
+
+        menu.GetSubMenu(0).TrackPopupMenu(TPM_LEFTBUTTON | TPM_RIGHTBUTTON, Pt.x, Pt.y, m_hWnd);
+    }
 
 private:
     void RefreshProcesses(DWORD options)
@@ -53,6 +163,7 @@ private:
         }
 
         this->DeleteAllItems();
+        m_ItemInfoMap.RemoveAll();
 
         HANDLE hSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS | TH32CS_SNAPTHREAD, 0);
         if(INVALID_HANDLE_VALUE == hSnap)
@@ -99,6 +210,11 @@ private:
             strTitle.Format(_T("Process %08u %s"), process.dwProcessId, process.strProcName);
             HTREEITEM hProcItem = this->InsertItem(strTitle, 3, 3, TVI_ROOT, TVI_LAST);
 
+            {
+                stItemInfo procInfo(process.dwProcessId);
+                m_ItemInfoMap.Add(hProcItem, procInfo);
+            }
+
             int nThreadCount = process.vctThreads.GetSize();
             for(int j=0; j<nThreadCount; ++ j)
             {
@@ -109,11 +225,22 @@ private:
                 strTitle.Format(_T("Thread %08u"), thread.dwThreadId);
                 HTREEITEM hThreadItem = this->InsertItem(strTitle, 2, 2, hProcItem, TVI_LAST);
 
+                {
+                    stItemInfo procInfo(process.dwProcessId, thread.dwThreadId);
+                    m_ItemInfoMap.Add(hProcItem, procInfo);
+                }
+
                 int nWindowCount = thread.vctWindows.GetSize();
                 for(int k=0; k<nWindowCount; ++ k)
                 {
                     HWND& hWnd = thread.vctWindows[k];
-                    AddWindow(hThreadItem, hWnd, options);
+                    HTREEITEM hWndItem = AddWindow(hThreadItem, hWnd, options);
+
+                    if(hWndItem != NULL)
+                    {
+                        stItemInfo procInfo(process.dwProcessId, hWnd);
+                        m_ItemInfoMap.Add(hProcItem, procInfo);
+                    }
                 }
             }
         }
@@ -247,6 +374,10 @@ public:
 
     virtual void Show(BOOL bShow)
     {
+        if(!bShow && m_ProcPropertyDlg.m_hWnd != NULL)
+            m_ProcPropertyDlg.ShowWindow(SW_HIDE);
+        if(!bShow && m_WndPropertyDlg.m_hWnd != NULL)
+            m_WndPropertyDlg.ShowWindow(SW_HIDE);
         ShowWindow(bShow ? SW_SHOW : SW_HIDE);
     }
 
@@ -260,7 +391,58 @@ public:
         return m_hWnd;
     }
 
+    virtual void ShowProperty()
+    {
+        HTREEITEM hItem = GetSelectedItem();
+        if(hItem == NULL)
+            return;
+        ShowPropertyImpl(hItem, TRUE);
+    }
+
+    void ShowPropertyImpl(HTREEITEM hItem, BOOL bCreate)
+    {
+        int nIndex = m_ItemInfoMap.FindKey(hItem);
+        if(nIndex == -1)
+            return;
+
+        stItemInfo& itemInfo = m_ItemInfoMap.GetValueAt(nIndex);
+        if(itemInfo.type == ItemProc || itemInfo.type == ItemThread)
+        {
+            if(m_ProcPropertyDlg.m_hWnd == NULL)
+            {
+                if(bCreate)
+                    m_ProcPropertyDlg.Create(m_hWnd);
+                else
+                    return;
+            }
+
+            if(m_ProcPropertyDlg.m_hWnd != NULL && m_ProcPropertyDlg.IsWindowVisible())
+            {
+                m_ProcPropertyDlg.ShowProperty(itemInfo.dwProcId, itemInfo.dwThreadId);
+            }
+        }
+        else
+        {
+            if(m_WndPropertyDlg.m_hWnd == NULL)
+            {
+                if(bCreate)
+                    m_WndPropertyDlg.Create(m_hWnd);
+                else
+                    return;
+            }
+
+            if(m_WndPropertyDlg.m_hWnd != NULL && m_WndPropertyDlg.IsWindowVisible())
+            {
+                m_WndPropertyDlg.ShowProperty(itemInfo.hWnd);
+            }
+        }
+    }
+
 private:
-    CImageList      m_ImageList;
-    IViewHolder*    m_pHolder;
+    CImageList          m_ImageList;
+    IViewHolder*        m_pHolder;
+    CProcPropertyDlg    m_ProcPropertyDlg;
+    CWndPropertyDlg     m_WndPropertyDlg;
+
+    ItemInfoMap         m_ItemInfoMap;
 };

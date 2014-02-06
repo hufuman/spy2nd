@@ -68,6 +68,7 @@ public:
         COMMAND_ID_HANDLER(ID_VIEW_SHOWVISIBLE, OnViewShowVisible)
         COMMAND_ID_HANDLER(ID_VIEW_SHOWALL, OnViewShowAll)
         COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnViewRefresh)
+        COMMAND_ID_HANDLER(ID_VIEW_PROPERTY, OnViewProperty)
 
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
@@ -151,6 +152,7 @@ private:
             m_pView[type]->Refresh(GetViewOptions());
         }
         m_pView[type]->Show(TRUE);
+        ::SetFocus(m_pView[type]->GetHwnd());
         m_SpyViewType = type;
         m_hWndClient = m_pView[type]->GetHwnd();
 
@@ -237,6 +239,12 @@ private:
     LRESULT OnViewRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         Refresh();
+        return 0;
+    }
+
+    LRESULT OnViewProperty(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        m_pView[m_SpyViewType]->ShowProperty();
         return 0;
     }
 

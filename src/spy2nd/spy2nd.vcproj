@@ -51,7 +51,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)\WTL80\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -74,6 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -135,7 +136,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)\WTL80\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -157,6 +158,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
+				UACExecutionLevel="2"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -214,10 +216,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\WndLayout.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -232,15 +230,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\LogMsgView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MainFrm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ProcessesView.h"
+				RelativePath=".\NtApiDef.h"
 				>
 			</File>
 			<File
@@ -255,41 +249,77 @@
 				RelativePath=".\ViewOptions.h"
 				>
 			</File>
-			<File
-				RelativePath=".\WindowsView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\WndLayout.h"
-				>
-			</File>
 			<Filter
-				Name="PropertyDlg"
+				Name="LogMsgView"
 				>
 				<File
-					RelativePath=".\PropertyClassDlg.h"
+					RelativePath=".\LogMsgView.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="WindowsView"
+				>
 				<File
-					RelativePath=".\PropertyDlg.h"
+					RelativePath=".\WindowsView.h"
 					>
 				</File>
+				<Filter
+					Name="WndPropertyDlg"
+					>
+					<File
+						RelativePath=".\WndPropertyClassDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\WndPropertyDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\WndPropertyGeneralDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\WndPropertyMiscDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\WndPropertyStylesDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\WndPropertyWindowsDlg.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="ProcessView"
+				>
 				<File
-					RelativePath=".\PropertyGeneralDlg.h"
+					RelativePath=".\ProcessesView.h"
 					>
 				</File>
-				<File
-					RelativePath=".\PropertyMiscDlg.h"
+				<Filter
+					Name="ProcPropertyDlg"
 					>
-				</File>
-				<File
-					RelativePath=".\PropertyStylesDlg.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PropertyWindowsDlg.h"
-					>
-				</File>
+					<File
+						RelativePath=".\ProcPropertyCountersDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ProcPropertyDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ProcPropertyGeneralDlg.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ProcPropertyThreadDlg.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -316,6 +346,54 @@
 		<Filter
 			Name="Util"
 			>
+			<File
+				RelativePath=".\DosDeviceToFileName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DosDeviceToFileName.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PEFileInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PEFileInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcessHandle.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcessHandle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcessInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcessInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcUtil.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcUtil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WndLayout.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WndLayout.h"
+				>
+			</File>
 			<File
 				RelativePath=".\WndStyles.cpp"
 				>

@@ -1,21 +1,18 @@
 #pragma once
 
-
-#include "PropertyGeneralDlg.h"
-#include "PropertyStylesDlg.h"
-#include "PropertyWindowsDlg.h"
-#include "PropertyClassDlg.h"
-#include "PropertyMiscDlg.h"
+#include "ProcessInfo.h"
+#include "ProcPropertyCountersDlg.h"
+#include "ProcPropertyGeneralDlg.h"
 
 #include "WndLayout.h"
 
 
-class CPropertyDlg : public CDialogImpl<CPropertyDlg>
+class CProcPropertyDlg : public CDialogImpl<CProcPropertyDlg>
 {
 public:
-	enum { IDD = IDD_WND_PROPERTY };
+	enum { IDD = IDD_PROC_PROPERTY };
 
-	BEGIN_MSG_MAP(CPropertyDlg)
+	BEGIN_MSG_MAP(CProcPropertyDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 
@@ -27,21 +24,33 @@ public:
         REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-    CPropertyDlg()
+    CProcPropertyDlg()
     {
         m_hCurrentPage = NULL;
-        m_hTargetWnd = NULL;
+        m_dwProcId = 0;
+        m_dwThreadId = 0;
     }
 
-    void ShowProperty(HWND hWnd)
+    void ShowProperty(DWORD dwProcId, DWORD dwThreadId)
     {
-        m_hTargetWnd = hWnd;
+        m_dwProcId = dwProcId;
+        m_dwThreadId = dwThreadId;
 
-        m_GeneralDlg.RefreshProperty(m_hTargetWnd);
-        m_StylesDlg.RefreshProperty(m_hTargetWnd);
-        m_WindowsDlg.RefreshProperty(m_hTargetWnd);
-        m_ClassDlg.RefreshProperty(m_hTargetWnd);
-        m_MiscDlg.RefreshProperty(m_hTargetWnd);
+        if(!m_Proc.Open(m_dwProcId, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ))
+        {
+            m_GeneralDlg.ShowWindow(SW_HIDE);
+            m_CountersDlg.ShowWindow(SW_HIDE);
+
+            CString strTemp;
+            strTemp.Format(_T("Failed to open process: %u"), dwProcId);
+            MessageBox(strTemp);
+            return;
+        }
+
+        m_GeneralDlg.RefreshProperty(m_dwProcId, m_Proc);
+        m_CountersDlg.RefreshProperty(m_dwProcId, m_Proc);
+
+        SelectPage(m_Tab.GetCurSel());
     }
 
     LRESULT OnTabSelChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
@@ -57,10 +66,7 @@ public:
         m_WndLayout.UnInit();
         m_Tab.m_hWnd = NULL;
         m_GeneralDlg.m_hWnd = NULL;
-        m_StylesDlg.m_hWnd = NULL;
-        m_WindowsDlg.m_hWnd = NULL;
-        m_ClassDlg.m_hWnd = NULL;
-        m_MiscDlg.m_hWnd = NULL;
+        m_CountersDlg.m_hWnd = NULL;
         m_hCurrentPage = NULL;
 
         return 0;
@@ -71,24 +77,15 @@ public:
         m_Tab.Attach(GetDlgItem(IDC_TAB_PROPERTY));
 
         m_GeneralDlg.Create(m_hWnd);
-        m_StylesDlg.Create(m_hWnd);
-        m_WindowsDlg.Create(m_hWnd);
-        m_ClassDlg.Create(m_hWnd);
-        m_MiscDlg.Create(m_hWnd);
+        m_CountersDlg.Create(m_hWnd);
 
         AddPage(_T("General"),  m_GeneralDlg);
-        AddPage(_T("Styles"),   m_StylesDlg);
-        AddPage(_T("Windows"),  m_WindowsDlg);
-        AddPage(_T("Class"),    m_ClassDlg);
-        AddPage(_T("Misc"),     m_MiscDlg);
+        AddPage(_T("Counters"),  m_CountersDlg);
 
         m_WndLayout.Init(m_hWnd);
         m_WndLayout.AddControlByHwnd(m_Tab,         Layout_HFill);
         m_WndLayout.AddControlByHwnd(m_GeneralDlg,  Layout_HFill | Layout_VFill);
-        m_WndLayout.AddControlByHwnd(m_StylesDlg,   Layout_HFill | Layout_VFill);
-        m_WndLayout.AddControlByHwnd(m_WindowsDlg,  Layout_HFill | Layout_VFill);
-        m_WndLayout.AddControlByHwnd(m_ClassDlg,    Layout_HFill | Layout_VFill);
-        m_WndLayout.AddControlByHwnd(m_MiscDlg,     Layout_HFill | Layout_VFill);
+        m_WndLayout.AddControlByHwnd(m_CountersDlg,  Layout_HFill | Layout_VFill);
         m_WndLayout.AddControlById(IDOK, Layout_Right | Layout_Bottom);
         m_WndLayout.AddControlById(IDCANCEL, Layout_Right | Layout_Bottom);
 
@@ -100,7 +97,7 @@ public:
 
     LRESULT OnBtnRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        ShowProperty(m_hTargetWnd);
+        ShowProperty(m_dwProcId, m_dwThreadId);
         return 0;
     }
 
@@ -135,21 +132,20 @@ public:
         m_Tab.GetItem(nIndex, &item);
         m_hCurrentPage = reinterpret_cast<HWND>(item.lParam);
 
-        ::ShowWindow(m_hCurrentPage, SW_SHOW);
+        if(m_Proc != NULL)
+            ::ShowWindow(m_hCurrentPage, SW_SHOW);
     }
 
 private:
+    CTabCtrl    m_Tab;
     CWndLayout  m_WndLayout;
 
-    CTabCtrl    m_Tab;
+    CProcessHandle  m_Proc;
+    CProcPropertyCountersDlg    m_CountersDlg;
+    CProcPropertyGeneralDlg     m_GeneralDlg;
 
-    CPropertyGeneralDlg m_GeneralDlg;
-    CPropertyStylesDlg  m_StylesDlg;
-    CPropertyWindowsDlg m_WindowsDlg;
-    CPropertyClassDlg   m_ClassDlg;
-    CPropertyMiscDlg    m_MiscDlg;
-
-    HWND    m_hTargetWnd;
+    DWORD   m_dwProcId;
+    DWORD   m_dwThreadId;
     HWND    m_hCurrentPage;
 };
 

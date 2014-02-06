@@ -14,6 +14,7 @@
 #include "ProcessesView.h"
 #include "aboutdlg.h"
 #include "MainFrm.h"
+#include "ProcUtil.h"
 
 CAppModule _Module;
 
@@ -45,6 +46,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 // make the EXE free threaded. This means that calls come in on a random RPC thread.
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
+
+    ProcUtil::EnablePrivilege(SE_DEBUG_NAME, TRUE);
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);

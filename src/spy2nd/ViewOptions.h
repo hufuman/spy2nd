@@ -30,4 +30,6 @@ public:
     virtual BOOL IsCreated() = 0;
     virtual HWND GetHwnd() = 0;
     virtual void ShowProperty() = 0;
+
+    virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass) = 0;
 };

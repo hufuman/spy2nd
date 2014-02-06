@@ -58,6 +58,12 @@ public:
         ;
     }
 
+    virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass)
+    {
+        hWnd = NULL;
+        return NULL;
+    }
+
 private:
     IViewHolder*    m_pHolder;
 };

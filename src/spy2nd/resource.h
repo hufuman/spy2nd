@@ -2,6 +2,8 @@
 // Microsoft Visual C++ generated include file.
 // Used by spy2nd.rc
 //
+#define IDC_BTN_START_SEARCH            3
+#define IDC_BTN_SEARCH                  4
 #define IDD_ABOUTBOX                    100
 #define IDD_HIGHLIGHT                   101
 #define IDD_ABOUTBOX1                   102
@@ -13,7 +15,9 @@
 #define IDD_WNDPROPERTY_GENERAL         209
 #define IDD_WNDPROPERTY_STYLES          210
 #define IDD_WNDPROPERTY_WINDOWS         211
+#define IDI_ICON_SEARCH_WINDOW          211
 #define IDD_WNDPROPERTY_MISC            212
+#define IDC_CURSOR_SEARCH_WINDOW        212
 #define IDD_WNDPROPERTY_CLASS           213
 #define IDD_WND_PROPERTY1               214
 #define IDD_PROC_PROPERTY               214
@@ -21,6 +25,7 @@
 #define IDD_PROCPROPERTY_COUNTERS       216
 #define IDD_PROCPROPERTY_THREAD         217
 #define IDD_PROCPROPERTY_WAIT_CHAIN     218
+#define IDD_FIND_WINDOW                 220
 #define IDC_LABEL_AUTHOR                1001
 #define IDC_TAB_PROPERTY                1003
 #define IDC_EDIT_CAPTION                1004
@@ -88,6 +93,15 @@
 #define IDC_LABEL_DESKTOP               1064
 #define IDC_CHK_RUNNING                 1065
 #define IDC_TREE_WAIT_CHAIN             1065
+#define IDC_CHK_HIDE_SPY2ND             1066
+#define IDC_RADIO_PROPERTY              1067
+#define IDC_RADIO_MESSAGE               1068
+#define IDC_RADIO_UP                    1069
+#define IDC_ICON_SEARCH                 1070
+#define IDC_RADIO_DOWN                  1071
+#define IDC_LABEL_RECT                  1072
+#define IDC_RADIO_MESSAGE2              1073
+#define IDC_RADIO_LOCATE                1073
 #define ID_SEARCH_FINDWINDOW            32775
 #define ID_VIEW_ALWAYSONTOP             32776
 #define ID_VIEW_PROPERTY                32778
@@ -114,9 +128,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        210
+#define _APS_NEXT_RESOURCE_VALUE        213
 #define _APS_NEXT_COMMAND_VALUE         32817
-#define _APS_NEXT_CONTROL_VALUE         1066
+#define _APS_NEXT_CONTROL_VALUE         1073
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

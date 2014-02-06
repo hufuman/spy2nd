@@ -154,6 +154,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\spy2nd.ico"
+IDI_ICON_SEARCH_WINDOW  ICON                    "res\\search_window.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -366,6 +367,35 @@ BEGIN
     CONTROL         "",IDC_TREE_WAIT_CHAIN,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,17,228,134
 END
 
+IDD_FIND_WINDOW DIALOGEX 0, 0, 245, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Window Search"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Choose one method:",IDC_STATIC,7,7,119,40
+    ICON            IDI_ICON_SEARCH_WINDOW,IDC_ICON_SEARCH,21,20,20,20
+    DEFPUSHBUTTON   "S&tart Search",IDC_BTN_START_SEARCH,55,23,59,14,NOT WS_VISIBLE
+    CONTROL         "Hide Spy2nd",IDC_CHK_HIDE_SPY2ND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,146,25,56,10
+    LTEXT           "H&andle:",IDC_STATIC,7,55,26,8
+    EDITTEXT        IDC_EDIT_HANDLE,39,52,199,14,ES_AUTOHSCROLL
+    LTEXT           "&Caption:",IDC_STATIC,7,71,28,8
+    EDITTEXT        IDC_EDIT_CAPTION,39,68,199,14,ES_AUTOHSCROLL
+    LTEXT           "C&lass:",IDC_STATIC,7,87,20,8
+    EDITTEXT        IDC_EDIT_CLASS,39,84,199,14,ES_AUTOHSCROLL
+    LTEXT           "&Rect:",IDC_STATIC,7,104,18,8
+    CONTROL         "&Property",IDC_RADIO_PROPERTY,"Button",BS_AUTORADIOBUTTON,57,173,44,10
+    CONTROL         "&Message",IDC_RADIO_MESSAGE,"Button",BS_AUTORADIOBUTTON,110,173,44,10
+    DEFPUSHBUTTON   "&Action",IDOK,188,161,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,188,177,50,14
+    DEFPUSHBUTTON   "&Search",IDC_BTN_SEARCH,188,102,50,14
+    GROUPBOX        "Action",IDC_STATIC,6,156,149,35
+    CONTROL         "&Up",IDC_RADIO_UP,"Button",BS_AUTORADIOBUTTON,23,135,25,10
+    CONTROL         "&Down",IDC_RADIO_DOWN,"Button",BS_AUTORADIOBUTTON,95,135,34,10
+    GROUPBOX        "Search Direction:",IDC_STATIC,6,120,149,35
+    LTEXT           "(0, 0) - (100, 100) 100 * 100",IDC_LABEL_RECT,39,104,117,8
+    CONTROL         "L&ocate",IDC_RADIO_LOCATE,"Button",BS_AUTORADIOBUTTON,11,173,37,10
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -468,6 +498,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 151
     END
+
+    IDD_FIND_WINDOW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 238
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -528,6 +566,13 @@ BEGIN
     VK_TAB,         ID_CHANGE_VIEW,         VIRTKEY, CONTROL, NOINVERT
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR_SEARCH_WINDOW CURSOR                  "res\\search_window.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

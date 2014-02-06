@@ -71,7 +71,10 @@ public:
         COMMAND_ID_HANDLER(ID_VIEW_PROPERTY, OnViewProperty)
         COMMAND_ID_HANDLER(ID_CHANGE_VIEW, OnChangeView)
 
+        COMMAND_ID_HANDLER(ID_SEARCH_FINDWINDOW, OnFindWindow)
+
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
+
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
         REFLECT_NOTIFICATIONS()
@@ -269,6 +272,15 @@ private:
         }
         if(type != ViewNone)
             ShowView(type);
+        return 0;
+    }
+
+    LRESULT OnFindWindow(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        CFindWindowDlg dlg(m_pView[m_SpyViewType]);
+        dlg.DoModal(m_hWnd);
+        if(!IsWindowVisible())
+            ShowWindow(SW_SHOW);
         return 0;
     }
 

@@ -226,6 +226,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FindWindowDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HighlightDlg.h"
 				>
 			</File>
@@ -339,6 +343,14 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
 			<File
+				RelativePath=".\res\search_window.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\res\search_window.ico"
+				>
+			</File>
+			<File
 				RelativePath=".\res\spy2nd.ico"
 				>
 			</File>
@@ -407,6 +419,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TreeViewUtil.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TreeViewUtil.h"
+				>
+			</File>
+			<File
 				RelativePath=".\WctWrapper.cpp"
 				>
 			</File>
@@ -433,5 +453,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="spy2nd.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

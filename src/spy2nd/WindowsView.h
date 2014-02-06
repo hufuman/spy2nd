@@ -9,6 +9,8 @@
 #include "HighlightDlg.h"
 #include "WndPropertyDlg.h"
 
+#include "TreeViewUtil.h"
+
 class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>, public IView
 {
 public:
@@ -225,6 +227,64 @@ public:
 
         HWND hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
         m_PropertyDlg.ShowProperty(hWnd);
+    }
+
+    BOOL MatchWindow(HTREEITEM hItem, HWND* phWnd, const CString& strCaption, const CString& strClass)
+    {
+        HWND hItemWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
+        if(phWnd != NULL && hItemWnd == *phWnd)
+            return TRUE;
+
+        if(strCaption.IsEmpty() && strClass.IsEmpty())
+            return FALSE;
+
+        if(!strCaption.IsEmpty())
+        {
+            if(::GetWindowTextLength(hItemWnd) != strCaption.GetLength())
+                return FALSE;
+            CString strTemp;
+            DWORD dwLength = strCaption.GetLength();
+            ::GetWindowText(hItemWnd, strTemp.GetBuffer(dwLength + 1), dwLength + 1);
+            strTemp.ReleaseBuffer();
+            if(_tcsicmp(strCaption, strTemp) != 0)
+                return FALSE;
+        }
+
+        if(!strClass.IsEmpty())
+        {
+            TCHAR szClassName[MAX_PATH];
+            ::GetClassName(hItemWnd, szClassName, MAX_PATH);
+            if(_tcsicmp(strClass, szClassName) != 0)
+                return FALSE;
+        }
+
+        if(phWnd)
+            *phWnd = hItemWnd;
+        return TRUE;
+    }
+
+    virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass)
+    {
+        std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CWindowsView::MatchWindow, this, std::tr1::placeholders::_1, &hWnd, strCaption, strClass);
+        HTREEITEM hItem = this->GetSelectedItem();
+
+        HWND hTargetWnd = NULL;
+        BOOL bItemMatched = MatchWindow(hItem, NULL, strCaption, strClass);
+
+        if(bDownSearch)
+            hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);
+        else
+            hItem = TreeViewUtil::TraversalItemsUp(m_hWnd, hItem, comparer);
+        if(hItem == NULL && !bItemMatched)
+            return NULL;
+
+        if(hItem == NULL && bItemMatched)
+        {
+            hItem = this->GetSelectedItem();
+            hWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
+        }
+        this->SelectItem(hItem);
+        return hItem;
     }
 
 private:

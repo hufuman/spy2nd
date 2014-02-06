@@ -413,6 +413,96 @@ public:
         ShowPropertyImpl(hItem);
     }
 
+    BOOL MatchWindow(HTREEITEM hItem, HWND hWnd)
+    {
+        int nIndex = m_ItemInfoMap.FindKey(hItem);
+        if(nIndex == -1)
+            return FALSE;
+
+        const stItemInfo& item = m_ItemInfoMap.GetValueAt(nIndex);
+        if(item.type != ItemHwnd)
+            return FALSE;
+
+        return (item.hWnd == hWnd);
+    }
+
+    BOOL MatchCaptionAndClass(HTREEITEM hItem, HWND* phTargetWnd, const CString& strCaption, const CString& strClass)
+    {
+        int nIndex = m_ItemInfoMap.FindKey(hItem);
+        if(nIndex == -1)
+            return FALSE;
+
+        const stItemInfo& item = m_ItemInfoMap.GetValueAt(nIndex);
+        if(item.type != ItemHwnd)
+            return FALSE;
+
+        if(!strCaption.IsEmpty())
+        {
+            if(::GetWindowTextLength(item.hWnd) != strCaption.GetLength())
+                return FALSE;
+            CString strTemp;
+            DWORD dwLength = strCaption.GetLength();
+            ::GetWindowText(item.hWnd, strTemp.GetBuffer(dwLength + 1), dwLength + 1);
+            strTemp.ReleaseBuffer();
+            if(_tcsicmp(strCaption, strTemp) != 0)
+                return FALSE;
+        }
+
+        if(!strClass.IsEmpty())
+        {
+            TCHAR szClassName[MAX_PATH];
+            ::GetClassName(item.hWnd, szClassName, MAX_PATH);
+            if(_tcsicmp(strClass, szClassName) != 0)
+                return FALSE;
+        }
+
+        if(phTargetWnd)
+            *phTargetWnd = item.hWnd;
+        return TRUE;
+    }
+
+    virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass)
+    {
+        HTREEITEM hItem = this->GetSelectedItem();
+        BOOL bMatched = MatchWindow(hItem, hWnd)
+            || MatchCaptionAndClass(hItem, NULL, strCaption, strClass);
+        if(hWnd != NULL)
+        {
+            std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CProcessesView::MatchWindow, this, std::tr1::placeholders::_1, hWnd);
+            if(bDownSearch)
+                hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);
+            else
+                hItem = TreeViewUtil::TraversalItemsUp(m_hWnd, hItem, comparer);
+            if(hItem != NULL)
+            {
+                this->SelectItem(hItem);
+                return hItem;
+            }
+        }
+        else
+        {
+            std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CProcessesView::MatchCaptionAndClass, this, std::tr1::placeholders::_1, &hWnd, strCaption, strClass);
+            if(bDownSearch)
+                hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);
+            else
+                hItem = TreeViewUtil::TraversalItemsUp(m_hWnd, hItem, comparer);
+            if(hItem != NULL)
+            {
+                this->SelectItem(hItem);
+                return hItem;
+            }
+        }
+
+        if(!bMatched)
+            return NULL;
+
+        hItem = this->GetSelectedItem();
+        MatchCaptionAndClass(hItem, &hWnd, strCaption, strClass);
+
+        this->SelectItem(hItem);
+        return hItem;
+    }
+
     void ShowPropertyImpl(HTREEITEM hItem)
     {
         int nIndex = m_ItemInfoMap.FindKey(hItem);

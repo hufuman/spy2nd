@@ -13,6 +13,7 @@
 #include "LogMsgView.h"
 #include "ProcessesView.h"
 #include "aboutdlg.h"
+#include "FindWindowDlg.h"
 #include "MainFrm.h"
 #include "ProcUtil.h"
 

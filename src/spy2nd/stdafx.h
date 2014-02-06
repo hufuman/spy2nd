@@ -30,6 +30,7 @@ extern CAppModule _Module;
 
 typedef ATL::CSimpleArray<CString> StringArray;
 
+#include <TlHelp32.h>
 
 #include <winver.h>
 #pragma comment(lib, "version.lib")

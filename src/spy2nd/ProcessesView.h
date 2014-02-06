@@ -227,7 +227,7 @@ private:
 
                 {
                     stItemInfo procInfo(process.dwProcessId, thread.dwThreadId);
-                    m_ItemInfoMap.Add(hProcItem, procInfo);
+                    m_ItemInfoMap.Add(hThreadItem, procInfo);
                 }
 
                 int nWindowCount = thread.vctWindows.GetSize();
@@ -239,7 +239,7 @@ private:
                     if(hWndItem != NULL)
                     {
                         stItemInfo procInfo(process.dwProcessId, hWnd);
-                        m_ItemInfoMap.Add(hProcItem, procInfo);
+                        m_ItemInfoMap.Add(hWndItem, procInfo);
                     }
                 }
             }
@@ -357,6 +357,11 @@ public:
     // IView
     virtual void Refresh(DWORD dwOptions)
     {
+        if(m_ProcPropertyDlg.m_hWnd != NULL)
+            m_ProcPropertyDlg.ShowWindow(SW_HIDE);
+        if(m_WndPropertyDlg.m_hWnd != NULL)
+            m_WndPropertyDlg.ShowWindow(SW_HIDE);
+
         RefreshProcesses(dwOptions);
     }
 
@@ -396,6 +401,12 @@ public:
         HTREEITEM hItem = GetSelectedItem();
         if(hItem == NULL)
             return;
+
+        if(m_ProcPropertyDlg.m_hWnd != NULL)
+            m_ProcPropertyDlg.ShowWindow(SW_SHOW);
+        if(m_WndPropertyDlg.m_hWnd != NULL)
+            m_WndPropertyDlg.ShowWindow(SW_SHOW);
+
         ShowPropertyImpl(hItem, TRUE);
     }
 

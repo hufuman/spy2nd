@@ -6,6 +6,7 @@
 #include "resource.h"
 
 #include "ProcUtil.h"
+#include "ThreadInfo.h"
 
 class CProcPropertyThreadDlg : public CDialogImpl<CProcPropertyThreadDlg>
 {
@@ -39,6 +40,28 @@ public:
         CString strTemp;
         DWORD dwTemp = 0;
 
+        CThreadInfo threadInfo;
+
+        SetDlgItemInt(IDC_LABEL_THREAD_ID, dwThreadId, FALSE);
+
+        CString strPriority;
+        if(threadInfo.Open(dwThreadId))
+        {
+            SetDlgItemText(IDC_LABEL_PRIORITY, threadInfo.GetPriority());
+            SetDlgItemText(IDC_LABEL_DESKTOP, threadInfo.GetDesktop());
+            CheckDlgButton(IDC_CHK_IOPENDING, threadInfo.IsIoPending() ? BST_CHECKED : BST_UNCHECKED);
+            CheckDlgButton(IDC_CHK_SUSPENDED, threadInfo.IsSuspended() ? BST_CHECKED : BST_UNCHECKED);
+            CheckDlgButton(IDC_CHK_RUNNING, threadInfo.IsRunning() ? BST_CHECKED : BST_UNCHECKED);
+        }
+        else
+        {
+            SetDlgItemText(IDC_LABEL_PRIORITY, _T("N/A"));
+            SetDlgItemText(IDC_LABEL_DESKTOP, _T("N/A"));
+            CheckDlgButton(IDC_CHK_IOPENDING, BST_UNCHECKED);
+            CheckDlgButton(IDC_CHK_SUSPENDED, BST_UNCHECKED);
+            CheckDlgButton(IDC_CHK_RUNNING, BST_UNCHECKED);
+        }
+
         Invalidate();
     }
 
@@ -62,7 +85,7 @@ public:
 
     CString GetFileSizeString(ULONGLONG size)
     {
-        double bytes = size;
+        double bytes = (double)size;
         DWORD index = 0;
         LPCTSTR szUnits[] = {_T("B"), _T("KB"), _T("MB"), _T("GB"), _T("TB"), _T("PB")};
         while(bytes >= 1024 && index < _countof(szUnits))

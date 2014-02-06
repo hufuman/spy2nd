@@ -92,7 +92,7 @@ public:
 
     CString GetFileSizeString(ULONGLONG size)
     {
-        double bytes = size;
+        double bytes = (double)size;
         DWORD index = 0;
         LPCTSTR szUnits[] = {_T("B"), _T("KB"), _T("MB"), _T("GB"), _T("TB"), _T("PB")};
         while(bytes >= 1024 && index < _countof(szUnits))

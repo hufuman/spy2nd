@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ProcessInfo.h"
-#include "ProcPropertyCountersDlg.h"
 #include "ProcPropertyGeneralDlg.h"
+#include "ProcPropertyCountersDlg.h"
+#include "ProcPropertyThreadDlg.h"
+#include "ProcPropertyWaitChainDlg.h"
 
 #include "WndLayout.h"
 
@@ -29,6 +31,7 @@ public:
         m_hCurrentPage = NULL;
         m_dwProcId = 0;
         m_dwThreadId = 0;
+        m_pWaitChainDlg = NULL;
     }
 
     void ShowProperty(DWORD dwProcId, DWORD dwThreadId)
@@ -40,6 +43,9 @@ public:
         {
             m_GeneralDlg.ShowWindow(SW_HIDE);
             m_CountersDlg.ShowWindow(SW_HIDE);
+            m_ThreadDlg.ShowWindow(SW_HIDE);
+            if(m_pWaitChainDlg)
+                m_pWaitChainDlg->ShowWindow(SW_HIDE);
 
             CString strTemp;
             strTemp.Format(_T("Failed to open process: %u"), dwProcId);
@@ -49,6 +55,25 @@ public:
 
         m_GeneralDlg.RefreshProperty(m_dwProcId, m_Proc);
         m_CountersDlg.RefreshProperty(m_dwProcId, m_Proc);
+        if(dwThreadId == 0)
+        {
+            if(m_bThreadInfoAdded)
+            {
+                m_Tab.DeleteItem(m_Tab.GetItemCount() - 1);
+                m_bThreadInfoAdded = FALSE;
+            }
+        }
+        else
+        {
+            if(!m_bThreadInfoAdded)
+            {
+                AddPage(_T("Thread"),   m_ThreadDlg);
+                m_bThreadInfoAdded = TRUE;
+            }
+            m_ThreadDlg.RefreshProperty(m_dwProcId, dwThreadId, m_Proc);
+        }
+        if(m_pWaitChainDlg)
+            m_pWaitChainDlg->RefreshProperty(dwProcId, dwThreadId, m_Proc);
 
         SelectPage(m_Tab.GetCurSel());
     }
@@ -67,7 +92,11 @@ public:
         m_Tab.m_hWnd = NULL;
         m_GeneralDlg.m_hWnd = NULL;
         m_CountersDlg.m_hWnd = NULL;
+        m_ThreadDlg.m_hWnd = NULL;
+        if(m_pWaitChainDlg)
+            m_pWaitChainDlg->m_hWnd = NULL;
         m_hCurrentPage = NULL;
+        m_bThreadInfoAdded = FALSE;
 
         return 0;
     }
@@ -78,14 +107,29 @@ public:
 
         m_GeneralDlg.Create(m_hWnd);
         m_CountersDlg.Create(m_hWnd);
+        m_ThreadDlg.Create(m_hWnd);
 
         AddPage(_T("General"),  m_GeneralDlg);
-        AddPage(_T("Counters"),  m_CountersDlg);
+        AddPage(_T("Counters"), m_CountersDlg);
+
+        if(IsWctAvailable())
+        {
+            m_pWaitChainDlg = new CProcPropertyWaitChainDlg;
+            m_pWaitChainDlg->Create(m_hWnd);
+            AddPage(_T("WaitChain"), *m_pWaitChainDlg);
+        }
+
+        m_bThreadInfoAdded = FALSE;
 
         m_WndLayout.Init(m_hWnd);
         m_WndLayout.AddControlByHwnd(m_Tab,         Layout_HFill);
         m_WndLayout.AddControlByHwnd(m_GeneralDlg,  Layout_HFill | Layout_VFill);
         m_WndLayout.AddControlByHwnd(m_CountersDlg,  Layout_HFill | Layout_VFill);
+        m_WndLayout.AddControlByHwnd(m_ThreadDlg,  Layout_HFill | Layout_VFill);
+
+        if(m_pWaitChainDlg)
+            m_WndLayout.AddControlByHwnd(*m_pWaitChainDlg,  Layout_HFill | Layout_VFill);
+
         m_WndLayout.AddControlById(IDOK, Layout_Right | Layout_Bottom);
         m_WndLayout.AddControlById(IDCANCEL, Layout_Right | Layout_Bottom);
 
@@ -141,8 +185,12 @@ private:
     CWndLayout  m_WndLayout;
 
     CProcessHandle  m_Proc;
-    CProcPropertyCountersDlg    m_CountersDlg;
     CProcPropertyGeneralDlg     m_GeneralDlg;
+    CProcPropertyCountersDlg    m_CountersDlg;
+    CProcPropertyThreadDlg      m_ThreadDlg;
+    CProcPropertyWaitChainDlg*  m_pWaitChainDlg;
+
+    BOOL        m_bThreadInfoAdded;
 
     DWORD   m_dwProcId;
     DWORD   m_dwThreadId;

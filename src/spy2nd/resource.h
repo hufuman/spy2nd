@@ -20,6 +20,8 @@
 #define IDD_PROCPROPERTY_GENERAL        215
 #define IDD_PROCPROPERTY_COUNTERS       216
 #define IDD_PROCPROPERTY_THREAD         217
+#define IDD_PROCPROPERTY_THREAD1        218
+#define IDD_PROCPROPERTY_WAIT_CHAIN     218
 #define IDC_LABEL_AUTHOR                1001
 #define IDC_TAB_PROPERTY                1003
 #define IDC_EDIT_CAPTION                1004
@@ -80,6 +82,13 @@
 #define IDC_LABEL_PEEK_WORKING_SET      1056
 #define IDC_LABEL_PAGEFILE              1057
 #define IDC_LABEL_PEEK_PAGEFILE         1058
+#define IDC_CHK_IOPENDING               1059
+#define IDC_CHK_SUSPENDED               1060
+#define IDC_LABEL_THREAD_ID             1062
+#define IDC_LABEL_PRIORITY              1063
+#define IDC_LABEL_DESKTOP               1064
+#define IDC_CHK_RUNNING                 1065
+#define IDC_TREE_WAIT_CHAIN             1065
 #define ID_SEARCH_FINDWINDOW            32775
 #define ID_VIEW_ALWAYSONTOP             32776
 #define ID_VIEW_PROPERTY                32778
@@ -102,7 +111,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        210
 #define _APS_NEXT_COMMAND_VALUE         32806
-#define _APS_NEXT_CONTROL_VALUE         1059
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

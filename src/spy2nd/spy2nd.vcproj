@@ -319,6 +319,10 @@
 						RelativePath=".\ProcPropertyThreadDlg.h"
 						>
 					</File>
+					<File
+						RelativePath=".\ProcPropertyWaitChainDlg.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>
@@ -384,6 +388,22 @@
 			</File>
 			<File
 				RelativePath=".\ProcUtil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ThreadInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ThreadInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WctWrapper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WctWrapper.h"
 				>
 			</File>
 			<File

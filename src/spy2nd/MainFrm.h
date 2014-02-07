@@ -40,6 +40,7 @@ public:
         UPDATE_ELEMENT(ID_FILE_PROCESSES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_FILE_LOG_MSG, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 
+        UPDATE_ELEMENT(ID_VIEW_ALWAYSONTOP, UPDUI_MENUPOPUP | UPDUI_CHECKED)
         UPDATE_ELEMENT(ID_VIEW_SHOWVISIBLE, UPDUI_MENUPOPUP | UPDUI_CHECKED)
         UPDATE_ELEMENT(ID_VIEW_SHOWALL, UPDUI_MENUPOPUP | UPDUI_CHECKED)
 
@@ -61,6 +62,7 @@ public:
         COMMAND_ID_HANDLER(ID_VIEW_SHOWVISIBLE, OnViewShowVisible)
         COMMAND_ID_HANDLER(ID_VIEW_SHOWALL, OnViewShowAll)
         COMMAND_ID_HANDLER(ID_VIEW_REFRESH, OnViewRefresh)
+        COMMAND_ID_HANDLER(ID_VIEW_ALWAYSONTOP, OnViewAlwaysOnTop)
         COMMAND_ID_HANDLER(ID_VIEW_PROPERTY, OnViewProperty)
         COMMAND_ID_HANDLER(ID_CHANGE_VIEW, OnChangeView)
 
@@ -284,6 +286,19 @@ private:
     LRESULT OnViewRefresh(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         Refresh();
+        return 0;
+    }
+
+    LRESULT OnViewAlwaysOnTop(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        DWORD dwState = UIGetState(ID_VIEW_ALWAYSONTOP);
+        bool bTopMost = ((dwState & UPDUI_CHECKED) == UPDUI_CHECKED);
+        bTopMost = !bTopMost;
+        if(bTopMost)
+            SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        else
+            SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        UISetCheck(ID_VIEW_ALWAYSONTOP, bTopMost);
         return 0;
     }
 

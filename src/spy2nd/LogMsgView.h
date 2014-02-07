@@ -7,7 +7,7 @@
 
 #include "ViewOptions.h"
 
-class CLogMsgView : public CWindowImpl<CLogMsgView, CListViewCtrl>, public IView
+class CLogMsgView : public CWindowImpl<CLogMsgView, CListViewCtrl>, public IBaseView
 {
 public:
 	DECLARE_WND_SUPERCLASS(_T("SpyLogMsgView"), CListViewCtrl::GetWndClassName())
@@ -28,7 +28,7 @@ public:
 
 public:
     //////////////////////////////////////////////////////////////////////////
-    // IView
+    // IBaseView
     virtual void Refresh(DWORD dwOptions)
     {
     }
@@ -56,6 +56,11 @@ public:
     virtual void ShowProperty()
     {
         ;
+    }
+
+    virtual SpyViewType GetViewType()
+    {
+        return ViewLogMsg;
     }
 
     virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass)

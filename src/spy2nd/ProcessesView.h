@@ -9,7 +9,7 @@
 #include "ProcPropertyDlg.h"
 #include <TlHelp32.h>
 
-class CProcessesView : public CWindowImpl<CProcessesView, CTreeViewCtrl>, public IView
+class CProcessesView : public CWindowImpl<CProcessesView, CTreeViewCtrl>, public IProcessView
 {
     typedef ATL::CSimpleArray<HWND> HWNDArray;
     struct stThreadInfo
@@ -238,12 +238,6 @@ private:
                 {
                     HWND& hWnd = thread.vctWindows[k];
                     HTREEITEM hWndItem = AddWindow(hThreadItem, hWnd, options);
-
-                    if(hWndItem != NULL)
-                    {
-                        stItemInfo procInfo(process.dwProcessId, hWnd);
-                        m_ItemInfoMap.Add(hWndItem, procInfo);
-                    }
                 }
             }
         }
@@ -256,6 +250,9 @@ private:
         {
             do 
             {
+                if(entry.th32ProcessID == ::GetCurrentProcessId())
+                    continue;
+
                 stProcessInfo proc;
                 proc.bHasVisibleWindow = FALSE;
                 proc.dwProcessId = entry.th32ProcessID;
@@ -345,6 +342,14 @@ private:
         SetLastError(0);
         HTREEITEM hItem = this->InsertItem(strTitle, bVisible ? 0 : 1, bVisible ? 0 : 1, hParent, TVI_LAST);
 
+        if(hItem != NULL)
+        {
+            DWORD dwProcId = 0;
+            ::GetWindowThreadProcessId(hWnd, &dwProcId);
+            stItemInfo procInfo(dwProcId, hWnd);
+            m_ItemInfoMap.Add(hItem, procInfo);
+        }
+
         HWND hWndChild = ::GetWindow(hWnd, GW_CHILD);
         while(hWndChild != NULL)
         {
@@ -357,7 +362,7 @@ private:
 
 public:
     //////////////////////////////////////////////////////////////////////////
-    // IView
+    // IProcessView
     virtual void Refresh(DWORD dwOptions)
     {
         if(m_ProcPropertyDlg.m_hWnd != NULL)
@@ -413,6 +418,11 @@ public:
         ShowPropertyImpl(hItem);
     }
 
+    virtual SpyViewType GetViewType()
+    {
+        return ViewProcesses;
+    }
+
     BOOL MatchWindow(HTREEITEM hItem, HWND hWnd)
     {
         int nIndex = m_ItemInfoMap.FindKey(hItem);
@@ -464,8 +474,9 @@ public:
     virtual HTREEITEM SearchAndSelectItem(HWND& hWnd, BOOL bDownSearch, CString strCaption, CString strClass)
     {
         HTREEITEM hItem = this->GetSelectedItem();
-        BOOL bMatched = MatchWindow(hItem, hWnd)
-            || MatchCaptionAndClass(hItem, NULL, strCaption, strClass);
+        HWND hTargetWnd = hWnd;
+        BOOL bMatched = (hTargetWnd != NULL ) ? MatchWindow(hItem, hTargetWnd)
+            : MatchCaptionAndClass(hItem, &hTargetWnd, strCaption, strClass);
         if(hWnd != NULL)
         {
             std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CProcessesView::MatchWindow, this, std::tr1::placeholders::_1, hWnd);
@@ -500,6 +511,56 @@ public:
         MatchCaptionAndClass(hItem, &hWnd, strCaption, strClass);
 
         this->SelectItem(hItem);
+        return hItem;
+    }
+
+    BOOL MatchPid(HTREEITEM hItem, DWORD dwPid)
+    {
+        int nIndex = m_ItemInfoMap.FindKey(hItem);
+        if(nIndex == -1)
+            return FALSE;
+
+        const stItemInfo& item = m_ItemInfoMap.GetValueAt(nIndex);
+        return (item.type == ItemProc && item.dwProcId == dwPid);
+    }
+
+    virtual HTREEITEM SearchAndSelectProcItem(DWORD dwPid)
+    {
+        std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CProcessesView::MatchPid, this, std::tr1::placeholders::_1, dwPid);
+        HTREEITEM hItem = this->GetSelectedItem();
+        if(!MatchPid(hItem, dwPid))
+        {
+            hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);
+        }
+        if(hItem != NULL)
+        {
+            this->SelectItem(hItem);
+        }
+        return hItem;
+    }
+
+    BOOL MatchThreadId(HTREEITEM hItem, DWORD dwThreadId)
+    {
+        int nIndex = m_ItemInfoMap.FindKey(hItem);
+        if(nIndex == -1)
+            return FALSE;
+
+        const stItemInfo& item = m_ItemInfoMap.GetValueAt(nIndex);
+        return (item.type == ItemThread && item.dwThreadId == dwThreadId);
+    }
+
+    virtual HTREEITEM SearchAndSelectThreadItem(DWORD dwThreadId)
+    {
+        std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CProcessesView::MatchThreadId, this, std::tr1::placeholders::_1, dwThreadId);
+        HTREEITEM hItem = this->GetSelectedItem();
+        if(!MatchThreadId(hItem, dwThreadId))
+        {
+            hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);
+        }
+        if(hItem != NULL)
+        {
+            this->SelectItem(hItem);
+        }
         return hItem;
     }
 

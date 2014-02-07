@@ -4,14 +4,7 @@
 
 #pragma once
 
-enum SpyViewType
-{
-    ViewNone        = -1,
-    ViewWindows     = 0,
-    ViewProcesses   = 1,
-    ViewLogMsg      = 2,
-    ViewMax         = 3,
-};
+
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler, public IViewHolder
@@ -113,18 +106,61 @@ public:
         return dwOptions;
     }
 
+    virtual void ShowView(SpyViewType type)
+    {
+        ShowViewImpl(type);
+    }
+
 private:
+
+    IViewHolder* GetViewHolder()
+    {
+        return dynamic_cast<IViewHolder*>(this);
+    }
+
+    IBaseView* GetWindowsView()
+    {
+        IBaseView* pView = dynamic_cast<IBaseView*>(&m_WindowsView);
+        if(!pView->IsCreated())
+        {
+            pView->Create(this);
+            pView->Refresh(GetViewOptions());
+        }
+        return pView;
+    }
+
+    IProcessView* GetProcessesView()
+    {
+        IProcessView* pView = dynamic_cast<IProcessView*>(&m_ProcessView);
+        if(!pView->IsCreated())
+        {
+            pView->Create(this);
+            pView->Refresh(GetViewOptions());
+        }
+        return pView;
+    }
+
+    IBaseView* GetCurrentView()
+    {
+        return m_pView[m_SpyViewType];
+    }
+
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+        g_CurrentViewGetter = std::tr1::bind(&CMainFrame::GetCurrentView, this);
+        g_WndViewGetter = std::tr1::bind(&CMainFrame::GetWindowsView, this);
+        g_ProcViewGetter = std::tr1::bind(&CMainFrame::GetProcessesView, this);
+        g_ViewHolderGetter = std::tr1::bind(&CMainFrame::GetViewHolder, this);
+
 		CreateSimpleToolBar();
 
 		CreateSimpleStatusBar();
 
         UISetCheck(ID_VIEW_SHOWALL, true);
 
-        m_pView[ViewWindows] = dynamic_cast<IView*>(&m_WindowsView);
-        m_pView[ViewProcesses] = dynamic_cast<IView*>(&m_ProcessView);
-        m_pView[ViewLogMsg] = dynamic_cast<IView*>(&m_LogMsgView);
+        m_pView[ViewWindows] = dynamic_cast<IBaseView*>(&m_WindowsView);
+        m_pView[ViewProcesses] = dynamic_cast<IBaseView*>(&m_ProcessView);
+        m_pView[ViewLogMsg] = dynamic_cast<IBaseView*>(&m_LogMsgView);
 
         ShowView(ViewWindows);
 
@@ -142,7 +178,7 @@ private:
 	}
 
 
-    void ShowView(SpyViewType type)
+    void ShowViewImpl(SpyViewType type)
     {
         if(type == m_SpyViewType)
             return;
@@ -168,7 +204,12 @@ private:
     }
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
+    {
+        g_CurrentViewGetter = NULL;
+        g_WndViewGetter = NULL;
+        g_ProcViewGetter = NULL;
+        g_ViewHolderGetter = NULL;
+
 		// unregister message filtering and idle updates
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
@@ -296,7 +337,7 @@ private:
     CLogMsgView     m_LogMsgView;
     CProcessesView  m_ProcessView;
 
-    IView*          m_pView[ViewMax];
+    IBaseView*      m_pView[ViewMax];
 
     SpyViewType     m_SpyViewType;
 };

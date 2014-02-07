@@ -4,6 +4,8 @@
 #include "NtApiDef.h"
 #include "DosDeviceToFileName.h"
 
+#include "ProcessHandle.h"
+
 namespace ProcUtil
 {
 #ifndef NT_SUCCESS
@@ -485,5 +487,22 @@ namespace ProcUtil
         ::CloseHandle(pi.hThread);
         ::CloseHandle(pi.hProcess);
         return TRUE;
+    }
+
+    CString GetProcName(DWORD dwProcId)
+    {
+        CString strName;
+        CProcessHandle proc;
+        if(!proc.Open(dwProcId, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ))
+            return strName;
+
+        strName = ProcUtil::GetProcessImagePath(proc);
+        if(strName.GetLength() > 2)
+        {
+            int pos = strName.ReverseFind(_T('\\'));
+            if(pos != -1)
+                strName = strName.Mid(pos + 1);
+        }
+        return strName;
     }
 }

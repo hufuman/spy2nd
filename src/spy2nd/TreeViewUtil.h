@@ -2,8 +2,6 @@
 
 
 
-#include <functional>
-
 
 namespace TreeViewUtil
 {

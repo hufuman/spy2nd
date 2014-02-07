@@ -11,7 +11,7 @@
 
 #include "TreeViewUtil.h"
 
-class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>, public IView
+class CWindowsView : public CWindowImpl<CWindowsView, CTreeViewCtrl>, public IBaseView
 {
 public:
 	DECLARE_WND_SUPERCLASS(_T("SpyWindowsView"), CTreeViewCtrl::GetWndClassName())
@@ -145,6 +145,11 @@ private:
 
     HTREEITEM AddWindow(HTREEITEM hParent, HWND hWnd, DWORD options)
     {
+        DWORD dwProcId = 0;
+        ::GetWindowThreadProcessId(hWnd, &dwProcId);
+        if(dwProcId == ::GetCurrentProcessId())
+            return NULL;
+
         CWindow wnd(hWnd);
         if((options & ViewOptionOnlyVisible) && !wnd.IsWindowVisible())
             return NULL;
@@ -177,7 +182,7 @@ private:
 
 public:
     //////////////////////////////////////////////////////////////////////////
-    // IView
+    // IBaseView
     virtual void Refresh(DWORD dwOptions)
     {
         RefreshWindows(dwOptions);
@@ -227,6 +232,11 @@ public:
         m_PropertyDlg.ShowProperty(hWnd);
     }
 
+    virtual SpyViewType GetViewType()
+    {
+        return ViewWindows;
+    }
+
     BOOL MatchWindow(HTREEITEM hItem, HWND* phWnd, const CString& strCaption, const CString& strClass)
     {
         HWND hItemWnd = reinterpret_cast<HWND>(this->GetItemData(hItem));
@@ -266,8 +276,8 @@ public:
         std::tr1::function<BOOL (HTREEITEM)> comparer = std::tr1::bind(&CWindowsView::MatchWindow, this, std::tr1::placeholders::_1, &hWnd, strCaption, strClass);
         HTREEITEM hItem = this->GetSelectedItem();
 
-        HWND hTargetWnd = NULL;
-        BOOL bItemMatched = MatchWindow(hItem, NULL, strCaption, strClass);
+        HWND hTargetWnd = hWnd;
+        BOOL bItemMatched = MatchWindow(hItem, &hTargetWnd, strCaption, strClass);
 
         if(bDownSearch)
             hItem = TreeViewUtil::TraversalItemsDown(m_hWnd, hItem, comparer);

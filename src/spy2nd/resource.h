@@ -46,7 +46,10 @@
 #define IDC_LABEL_PARENT_PROCESS        1013
 #define IDC_LABEL_OWNER_HANDLE          1014
 #define IDC_LABEL_OWNER_PROCESS         1015
+#define IDC_LABEL_PARENT_THREAD         1016
 #define IDC_LINK_THREADID               1017
+#define IDC_LABEL_PARENT_HANDLE3        1017
+#define IDC_LABEL_OWNER_THREAD          1017
 #define IDC_LINK_PROCID                 1018
 #define IDC_LIST_CLASS_STYLES           1019
 #define IDC_EDIT_CLASS_STYLES           1020
@@ -100,7 +103,6 @@
 #define IDC_ICON_SEARCH                 1070
 #define IDC_RADIO_DOWN                  1071
 #define IDC_LABEL_RECT                  1072
-#define IDC_RADIO_MESSAGE2              1073
 #define IDC_RADIO_LOCATE                1073
 #define ID_SEARCH_FINDWINDOW            32775
 #define ID_VIEW_ALWAYSONTOP             32776

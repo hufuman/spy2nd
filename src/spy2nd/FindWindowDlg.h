@@ -27,7 +27,7 @@ public:
 		COMMAND_ID_HANDLER(IDCANCEL,        OnCloseCmd)
     END_MSG_MAP()
 
-    CFindWindowDlg(IView *pView)
+    CFindWindowDlg(IBaseView *pView)
     {
         m_pView = pView;
     }
@@ -64,7 +64,6 @@ public:
         HWND hWnd = ::WindowFromPoint(Pt);
 
         m_HighlightDlg.SetHwnd(hWnd);
-        m_HighlightDlg.ShowWindow(SW_SHOWNOACTIVATE);
     }
 
     void UpdateDrag()
@@ -98,6 +97,11 @@ public:
 
     void UpdateInfo(HWND hWnd)
     {
+        DWORD dwProcId = 0;
+        ::GetWindowThreadProcessId(hWnd, &dwProcId);
+        if(dwProcId == ::GetCurrentProcessId())
+            hWnd = NULL;
+
         if(m_hLastWnd == hWnd)
             return;
 
@@ -107,10 +111,11 @@ public:
 
         if(hWnd == NULL)
         {
-            SetDlgItemText(IDC_EDIT_HANDLE, _T("0x00000000"));
+            SetDlgItemText(IDC_EDIT_HANDLE, _T(""));
             SetDlgItemText(IDC_EDIT_CAPTION, _T(""));
             SetDlgItemText(IDC_EDIT_CLASS, _T(""));
             SetDlgItemText(IDC_LABEL_RECT, _T(""));
+            m_HighlightDlg.ShowWindow(SW_HIDE);
         }
         else
         {
@@ -138,6 +143,8 @@ public:
                 rcWnd.Width(), rcWnd.Height());
             SetDlgItemText(IDC_LABEL_RECT, strTemp);
 
+            if(!m_HighlightDlg.IsWindowVisible())
+                m_HighlightDlg.ShowWindow(SW_SHOWNOACTIVATE);
             m_HighlightDlg.SetHwnd(hWnd);
         }
     }
@@ -281,7 +288,7 @@ private:
 
     HWND    m_hLastWnd;
 
-    IView*  m_pView;
+    IBaseView*      m_pView;
     CHighlightDlg   m_HighlightDlg;
 };
 

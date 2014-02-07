@@ -24,6 +24,9 @@ namespace ProcUtil
 
     BOOL Execute(LPCTSTR szExePath, LPCTSTR szParam);
 
+    // 
+    CString GetProcName(DWORD dwProcId);
+
     class FsRedirection
     {
     public:

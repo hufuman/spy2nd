@@ -44,13 +44,45 @@ public:
 
     LRESULT OnProcIdClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        // not impl
+        CWindow wnd(GetDlgItem(IDC_LINK_PROCID));
+        DWORD dwProcId = (DWORD)wnd.GetWindowLongPtr(GWLP_USERDATA);
+
+        if(!g_ProcViewGetter)
+        {
+            MessageBox(_T("Processes View hasn't be initialized"));
+        }
+        else
+        {
+            IProcessView* pProcView = g_ProcViewGetter();
+            g_ViewHolderGetter()->ShowView(ViewProcesses);
+            if(pProcView->SearchAndSelectProcItem(dwProcId) == NULL)
+            {
+                MessageBox(_T("No Item Found"));
+            }
+        }
+
         return 0;
     }
 
     LRESULT OnThreadIdClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        // not impl
+        CWindow wnd(GetDlgItem(IDC_LINK_THREADID));
+        DWORD dwThreadId = (DWORD)wnd.GetWindowLongPtr(GWLP_USERDATA);
+
+        if(!g_ProcViewGetter)
+        {
+            MessageBox(_T("Processes View hasn't be initialized"));
+        }
+        else
+        {
+            IProcessView* pProcView = g_ProcViewGetter();
+            g_ViewHolderGetter()->ShowView(ViewProcesses);
+            if(pProcView->SearchAndSelectThreadItem(dwThreadId) == NULL)
+            {
+                MessageBox(_T("No Item Found"));
+            }
+        }
+
         return 0;
     }
 
@@ -63,10 +95,12 @@ public:
 
         strTemp.Format(_T("%08u"), dwProcId);
         m_LinkProcId.SetLabel(strTemp);
+        m_LinkProcId.SetWindowLongPtr(GWLP_USERDATA, dwProcId);
         m_LinkProcId.Invalidate();
 
         strTemp.Format(_T("%08u"), dwThreadId);
         m_LinkThreadId.SetLabel(strTemp);
+        m_LinkThreadId.SetWindowLongPtr(GWLP_USERDATA, dwThreadId);
         m_LinkThreadId.Invalidate();
     }
 

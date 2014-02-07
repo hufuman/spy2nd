@@ -34,6 +34,9 @@ public:
         m_LinkProcId.m_tip.m_hWnd = NULL;
         m_LinkThreadId.m_tip.m_hWnd = NULL;
 
+        m_LinkProcId.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+        m_LinkThreadId.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+
         m_LinkProcId.SubclassWindow(GetDlgItem(IDC_LINK_PROCID));
         m_LinkThreadId.SubclassWindow(GetDlgItem(IDC_LINK_THREADID));
         return TRUE;

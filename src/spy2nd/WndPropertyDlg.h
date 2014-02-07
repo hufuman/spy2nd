@@ -47,6 +47,8 @@ public:
         }
 
         SelectPage(m_Tab.GetCurSel());
+        if(!IsWindowVisible())
+            ShowWindow(SW_SHOWNOACTIVATE);
     }
 
     LRESULT OnTabSelChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
@@ -135,6 +137,12 @@ public:
 
     void SelectPage(int nIndex)
     {
+        if(nIndex < 0 || nIndex > m_Tab.GetItemCount())
+        {
+            m_Tab.SetCurSel(0);
+            nIndex = 0;
+        }
+
         if(m_hCurrentPage != NULL)
         {
             ::ShowWindow(m_hCurrentPage, SW_HIDE);
@@ -147,7 +155,7 @@ public:
 
         ::ShowWindow(m_hCurrentPage, SW_SHOW);
 
-        m_Views[m_Tab.GetCurSel()]->RefreshProperty(m_uUpdateTick);
+        m_Views[nIndex]->RefreshProperty(m_uUpdateTick);
     }
 
 private:

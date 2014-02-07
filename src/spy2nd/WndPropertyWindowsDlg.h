@@ -35,6 +35,11 @@ public:
         m_LinkOwnerHandle.m_tip.m_hWnd = NULL;
         m_LinkOwnerProcess.m_tip.m_hWnd = NULL;
 
+        m_LinkParentHandle.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+        m_LinkParentProcess.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+        m_LinkOwnerHandle.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+        m_LinkOwnerProcess.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON | HLINK_UNDERLINEHOVER);
+
         m_LinkParentHandle.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_HANDLE));
         m_LinkParentProcess.SubclassWindow(GetDlgItem(IDC_LABEL_PARENT_PROCESS));
 
